@@ -1,6 +1,5 @@
 local M = {}
 
-
 local function setGroundModels()
 	dump("getGroundModels called")
 	local cmd = "groundModels = {"
@@ -127,6 +126,23 @@ local function onVehicleDestroyed(vehID)
 	brakeSetting = {}
 end
 
+local function setTyreWearAndThermalVariables()
+	dump("printing tyres")
+	local active_parts = core_vehicle_manager.getPlayerVehicleData(be:getPlayerVehicle(0)).vdata.activeParts
+	for _, active_part in pairs(active_parts) do
+		local slotType = active_part["slotType"]
+		if type(slotType) == "string" and string.sub(slotType, 1, 6) == "tire_F" then
+			local cmd = "tyreVarsFront = " .. serialize(active_part["twatVarsGeneral"]) .. ";"
+			local veh = be:getPlayerVehicle(0)
+			if veh then veh:queueLuaCommand(cmd) end
+		elseif type(slotType) == "string" and string.sub(slotType, 1, 5) == "tire_" then
+			local cmd = "tyreVarsRear = " .. serialize(active_part["twatVarsGeneral"]) .. ";"
+			local veh = be:getPlayerVehicle(0)
+			if veh then veh:queueLuaCommand(cmd) end
+		end
+	end
+end
+
 M.setBrakeSettings = setBrakeSettings
 M.setEnv_temp = setEnv_temp
 M.setGroundModels = setGroundModels
@@ -135,5 +151,6 @@ M.onSettingsChanged = onSettingsChanged
 M.onVehicleSpawned = onVehicleSpawned
 M.onSpawnCCallback = onSpawnCCallback
 M.onVehicleDestroyed = onVehicleDestroyed
+M.setTyreWearAndThermalVariables = setTyreWearAndThermalVariables
 
 return M
