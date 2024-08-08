@@ -22,14 +22,14 @@ function hotResetAllTyres()
 	end
 end
 
-local function temp_generateStreamFourTyres(tyre)
+local function generateStream(tyre)
 	local stream = { data = {} }
 	for _, tyre in pairs(tyres) do
 		table.insert(stream.data, {
 			name = tyre.name,
-			temp = { tyre:getTemperature(), tyre:getTemperature(), tyre:getTemperature(), tyre:getTemperature() },
+			temp = { tyre.temperature, tyre.temperature, tyre.temperature, tyre.temperature },
 			working_temp = 85,
-			condition = 100,
+			condition = tyre.condition,
 			camber = tyre.camber_to_ground,
 		})
 	end
@@ -67,7 +67,6 @@ local function updateGFX(dt)
 		tyre:update(dt, getWheelCamberToGround(i) * tyre.wheelDir, env_temp)
 	end
 
-
 	if oneSecondTimer >= 1 then
 		obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setEnv_temp() end")
 		for _, tyre in pairs(tyres) do
@@ -76,7 +75,7 @@ local function updateGFX(dt)
 		oneSecondTimer = oneSecondTimer % 1 -- Loops every 1 seconds
 	end
 
-	local stream = temp_generateStreamFourTyres(useTyre)
+	local stream = generateStream(tyres)
 	gui.send("tyrewearandthermals2", stream)
 end
 

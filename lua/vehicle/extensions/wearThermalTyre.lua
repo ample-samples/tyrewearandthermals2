@@ -25,7 +25,14 @@ function Tyre:setCamberToGround(camber_to_ground)
 	return self
 end
 
-function Tyre:__index(table, key)
+function Tyre:reset()
+	return self
+end
+
+function Tyre.__index(table, key)
+	if key == "coldReset" or key == "hotReset" then
+		return Tyre["reset"]
+	end
 	return Tyre[key]
 end
 
@@ -54,15 +61,11 @@ function WearThermalTyre:setTemperature(temp)
 	return self
 end
 
-function WearThermalTyre:getTemperature()
-	return self.temperature
-end
-
 -- TODO: temporary example
 function WearThermalTyre:update(dt, camber_to_ground, env_temp)
 	self:setCamberToGround(camber_to_ground)
-	self.condition = self.condition - self.wear_rate
-	self.temperature = self.temperature + 0.0005 * (env_temp - self.temperature)
+	self.condition = self.condition - (self.condition - self.wear_rate) * dt / 10
+	self.temperature = self.temperature + 0.5 * (env_temp - self.temperature) * dt / 10
 	return self
 end
 
