@@ -57,7 +57,7 @@ angular.module("beamng.apps")
                         }
 
                         if (condition == undefined) {
-                            condition = 100
+                            condition = [100, 100, 100]
                         }
 
                         ctx.textAlign = 'center';
@@ -85,10 +85,11 @@ angular.module("beamng.apps")
                         // Draw info text
                         ctx.fillStyle = "#ffffffff";
                         ctx.font = 'bold 18pt "Lucida Console", Monaco, monospace';
-                        ctx.fillText("" + Math.ceil(condition) + "%", cx, y - 8);
+                        var conditionAverage = condition.reduce((a, b) => a + b, 0) / condition.length;
+                        ctx.fillText("" + Math.floor(conditionAverage) + "%", cx, y - 8); 
                         // ctx.fillText("" + Math.ceil(temps[3]) + " C", cx, y - 8);
 
-                        var t = condition / 100;
+                        var t = conditionAverage / 100;
 
                         var lowHue = 0;
                         var highHue = 248;
@@ -110,8 +111,8 @@ angular.module("beamng.apps")
                             ctx.beginPath();
                             ctx.rect(x + (w / 3.0 * i) + 2, y + 1, w / 3.0 - 4, h - 2);
                             ctx.fill();
-                            if (t > 0.1) {
-                                var ft = 1.0 - t;
+                            if (condition[i] / 100 > 0.03) {
+                                var ft = 1.0 - (condition[i] / 100);
                                 ctx.fillStyle = "hsla(" + hue + ",82%,56%,1)";
                                 ctx.beginPath();
                                 ctx.rect(x + (w / 3.0 * i) + 2, y + h * ft + 1, w / 3.0 - 4, h - h * ft - 2);

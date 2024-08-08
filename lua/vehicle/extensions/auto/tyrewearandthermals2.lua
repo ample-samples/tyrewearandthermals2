@@ -1,14 +1,14 @@
 local M = {}
 groundModels = {} -- made global so GELua can access and change it
-env_temp = 20     -- default value
+env_temp = 20     
 brakeSettings = { 12, 12 }
 tyreVarsFront = nil
 tyreVarsRear = nil
 
 extensions.load("wearThermalTyre")
 
-local useTyre = WearThermalTyre
-local tyres = {}
+local useTyre = WearTyre
+tyres = {} -- left global so other mods can interact with it
 
 function coldResetAllTyres()
 	for _, tyre in pairs(tyres) do
@@ -29,7 +29,7 @@ local function generateStream(tyre)
 			name = tyre.name,
 			temp = { tyre.temperature, tyre.temperature, tyre.temperature, tyre.temperature },
 			working_temp = 85,
-			condition = tyre.condition,
+			condition = tyre.condition_zones,
 			camber = tyre.camber_to_ground,
 		})
 	end
