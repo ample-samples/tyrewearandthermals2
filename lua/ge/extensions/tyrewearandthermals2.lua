@@ -127,7 +127,6 @@ local function onVehicleDestroyed(vehID)
 end
 
 local function setTyreWearAndThermalVariables()
-	dump("printing tyres")
 	local active_parts = core_vehicle_manager.getPlayerVehicleData(be:getPlayerVehicle(0)).vdata.activeParts
 	for _, active_part in pairs(active_parts) do
 		local slotType = active_part["slotType"]
