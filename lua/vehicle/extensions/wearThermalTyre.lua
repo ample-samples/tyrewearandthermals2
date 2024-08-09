@@ -1,9 +1,18 @@
+local function min_or_zero(x, min)
+	if x < min then return 0 else return x end
+end
+
+local wear_min = 0.001
+
 Tyre = {
 	name = "",
 	wheelID = 0,
 	totalWeight = 10,
 	camber_to_ground = 0,
-	wheelDir = 1
+	wheelDir = 1,
+	load = 0,
+	lastSlip = 0,
+	tyreWidth = 1
 }
 
 WearThermalTyre = {
@@ -28,7 +37,8 @@ function Tyre.new(name, wheelID, wheelDir)
 	return self
 end
 
-function Tyre:update(dt, camber_to_ground)
+-- INFO: `p` is an object containing wheel data
+function Tyre:update(dt, camber_to_ground, p)
 	self.camber_to_ground = camber_to_ground
 	return self
 end
@@ -50,22 +60,28 @@ function Tyre.__index(table, key)
 	return Tyre[key]
 end
 
-function WearTyre.new(name, wheelID, wheelDir)
+function WearTyre.new(name, wheelID, wheelDir, p)
 	local self = setmetatable({}, WearTyre)
 
 	self.wheelDir = wheelDir
 	self.name = name
 	self.wheelID = wheelID
 	self.condition_zones = { 100, 100, 100 }
+	self.wear_rate = p.wear_rate
 
 	return self
 end
 
--- INFO: temporary example
-function WearTyre:update(dt, camber_to_ground, env_temp)
-	self:setCamberToGround(camber_to_ground)
+-- INFO: `p` is an object containing wheel data
+function WearTyre:update(dt, camber_to_ground, p)
+	local load = p.load
+	local angular_vel = p.angularVel * self.wheelDir
+	local propulsionTorque = p.propulsionTorque * self.wheelDir
+	self:setCamberToGround(camber_to_ground * self.wheelDir)
 	for i, zone in pairs(self.condition_zones) do
-		self.condition_zones[i] = zone - (zone - self.wear_rate) * i * dt / 10
+		local wear_amount = math.abs(angular_vel * (propulsionTorque - p.brakingTorque)) * self.wear_rate * dt / 1000
+		self.condition_zones[i] = zone - min_or_zero(wear_amount, wear_min)
+		self.condition_zones[i] = math.max(self.condition_zones[i], 0)
 	end
 	return self
 end
@@ -84,14 +100,14 @@ function WearTyre.__index(table, key)
 end
 
 -- INFO: constructor
-function WearThermalTyre.new(name, wheelID, wheelDir, temp, weight, wear_rate)
+function WearThermalTyre.new(name, wheelID, wheelDir, p)
 	local self = setmetatable({}, WearThermalTyre)
 
 	self.name = name
 	self.wheelID = wheelID
 	self.wheelDir = wheelDir
-	self.temperature = temp
-	self.totalWeight = weight
+	self.temperature = p.temp
+	self.totalWeight = p.weight
 	self.condition_zones = { 100, 100, 100 }
 
 	return self

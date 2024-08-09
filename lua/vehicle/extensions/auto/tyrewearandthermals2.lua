@@ -1,6 +1,6 @@
 local M = {}
 groundModels = {} -- made global so GELua can access and change it
-env_temp = 20     
+env_temp = 20
 brakeSettings = { 12, 12 }
 tyreVarsFront = nil
 tyreVarsRear = nil
@@ -63,8 +63,13 @@ local function updateGFX(dt)
 	oneSecondTimer = oneSecondTimer + dt
 	local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[0].contactMaterialID1)
 
+
+
+
 	for i, tyre in pairs(tyres) do
-		tyre:update(dt, getWheelCamberToGround(i) * tyre.wheelDir, env_temp)
+		tyre:update(dt, getWheelCamberToGround(i),
+			{ env_temp = env_temp, load = wheels.wheelRotators[i].downForce, angularVel = wheels.wheelRotators[i]
+			.angularVelocity, propulsionTorque = wheels.wheelRotators[i].propulsionTorque, brakingTorque = wheels.wheelRotators[i].brakingTorque, lastTorque = wheels.wheelRotators[i].lastTorque })
 	end
 
 	if oneSecondTimer >= 1 then
@@ -81,7 +86,8 @@ end
 
 local function onReset()
 	for i, wheel in pairs(wheels.wheelRotators) do
-		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir, 10, 85, 0.05)
+		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
+			{ totalWeight = 10, temp = 85, wear_rate = 0.005, wheel.tireWidth })
 	end
 
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setEnv_temp() end")
@@ -91,7 +97,8 @@ end
 
 local function onInit()
 	for i, wheel in pairs(wheels.wheelRotators) do
-		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir, 10, 85, 0.05)
+		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
+			{ totalWeight = 10, temp = 85, wear_rate = 0.005, wheel.tireWidth })
 	end
 
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setGroundModels() end")
