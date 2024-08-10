@@ -2,7 +2,7 @@ local function min_or_zero(x, min)
 	if x < min then return 0 else return x end
 end
 
-local wear_min = 0.001
+local wear_min = 30
 
 Tyre = {
 	name = "",
@@ -17,13 +17,13 @@ Tyre = {
 
 WearThermalTyre = {
 	temperature = 85,
-	wear_rate = 0.05,
+	wear_rate = 0.01,
 	condition_zones = { 100, 100, 100 }
 }
 
 WearTyre = {
 	condition_zones = { 100, 100, 100 },
-	wear_rate = 0.05
+	wear_rate = 0.01
 }
 
 -- INFO: constructor
@@ -79,8 +79,13 @@ function WearTyre:update(dt, camber_to_ground, p)
 	local propulsionTorque = p.propulsionTorque * self.wheelDir
 	self:setCamberToGround(camber_to_ground * self.wheelDir)
 	for i, zone in pairs(self.condition_zones) do
-		local wear_amount = math.abs(angular_vel * (propulsionTorque - p.brakingTorque)) * self.wear_rate * dt / 1000
-		self.condition_zones[i] = zone - min_or_zero(wear_amount, wear_min)
+		-- INFO: ADDITIONAL THINGS WHICH AFFECT WEAR
+		-- Contact pressure
+		-- Slip * load
+		local wear_amount = math.abs(angular_vel * (propulsionTorque - p.brakingTorque))
+		self.condition_zones[i] = zone - min_or_zero(wear_amount, wear_min) * self.wear_rate / 1000000
+		dump(self.name)
+		dump(wear_amount)
 		self.condition_zones[i] = math.max(self.condition_zones[i], 0)
 	end
 	return self
