@@ -7,7 +7,7 @@ tyreVarsRear = nil
 
 extensions.load("wearThermalTyre")
 
-local useTyre = WearTyre
+local useTyre = Tyre
 tyres = {} -- left global so other mods can interact with it
 
 function coldResetAllTyres()
@@ -63,13 +63,18 @@ local function updateGFX(dt)
 	oneSecondTimer = oneSecondTimer + dt
 	local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[0].contactMaterialID1)
 
-
-
-
 	for i, tyre in pairs(tyres) do
-		tyre:update(dt, getWheelCamberToGround(i),
-			{ env_temp = env_temp, load = wheels.wheelRotators[i].downForce, angularVel = wheels.wheelRotators[i]
-			.angularVelocity, propulsionTorque = wheels.wheelRotators[i].propulsionTorque, brakingTorque = wheels.wheelRotators[i].brakingTorque, lastTorque = wheels.wheelRotators[i].lastTorque })
+		tyre:update(
+			dt,
+			getWheelCamberToGround(i),
+			{
+				env_temp = env_temp,
+				load = wheels.wheelRotators[i].downForce,
+				angularVel = wheels.wheelRotators[i].angularVelocity,
+				propulsionTorque = wheels.wheelRotators[i].propulsionTorque,
+				brakingTorque = wheels.wheelRotators[i].brakingTorque,
+				lastTorque = wheels.wheelRotators[i].lastTorque
+			})
 	end
 
 	if oneSecondTimer >= 1 then
