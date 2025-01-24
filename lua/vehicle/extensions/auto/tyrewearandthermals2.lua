@@ -5,9 +5,9 @@ brakeSettings = { 12, 12 }
 tyreVarsFront = nil
 tyreVarsRear = nil
 
-extensions.load("wearThermalTyre")
+extensions.load("ThermalWearTyre")
 
-local useTyre = Tyre
+local useTyre = ThermalWearTyre
 tyres = {} -- left global so other mods can interact with it
 
 function coldResetAllTyres()
@@ -22,14 +22,14 @@ function hotResetAllTyres()
 	end
 end
 
-local function generateStream(tyre)
+local function generateStream()
 	local stream = { data = {} }
 	for _, tyre in pairs(tyres) do
 		table.insert(stream.data, {
 			name = tyre.name,
 			temp = { tyre.temperature, tyre.temperature, tyre.temperature, tyre.temperature },
 			working_temp = 85,
-			condition = tyre.condition_zones,
+			condition_zones = tyre.condition_zones,
 			camber = tyre.camber_to_ground,
 		})
 	end

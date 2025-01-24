@@ -20,7 +20,7 @@ ThermalWearTyre = {
 	type = "ThermalWearTyre",
 	temperature = 85,
 	wear_rate = 0.01,
-	condition_zones = { 100, 100, 100 }
+	condition_zones = { 100, 100, 100, 100 }
 }
 
 WearTyre = {
@@ -53,8 +53,6 @@ end
 
 function ThermalWearTyre:setCamberToGround(camber_to_ground)
 	self.camber_to_ground = camber_to_ground * self.wheelDir
-	local camber_debug = string.format("\nwheelID: %i\nwheelDir: %i\ncamber: %f", self.wheelID, self.wheelDir, self.camber_to_ground)
-	-- dump(camber_debug)
 	return self
 end
 
@@ -121,7 +119,6 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.temperature = tyreParams.temp
 	self.totalWeight = tyreParams.weight
 	self.condition_zones = { 100, 100, 100 }
-
 	return self
 end
 
@@ -131,24 +128,28 @@ function ThermalWearTyre:setTemperature(temp)
 end
 
 -- INFO: temporary example
-function ThermalWearTyre:update(dt, camber_to_ground, params)
+function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self:setCamberToGround(camber_to_ground)
 	for i, zone in pairs(self.condition_zones) do
 		self.condition_zones[i] = zone - (zone - self.wear_rate) * i * dt / 10
 	end
-	self.temperature = self.temperature + 0.5 * (params.env_temp - self.temperature) * dt / 10
+
 	return self
 end
 
 function ThermalWearTyre:hotReset()
 	self.temperature = ThermalWearTyre.temperature
-	self.condition_zones = { 100, 100, 100 }
+	for i,v in pairs(self.condition_zones) do
+		self.condition_zones[i] = 100
+	end
 	return self
 end
 
 function ThermalWearTyre:coldReset(env_temp)
 	self.temperature = env_temp
-	self.condition_zones = { 100, 100, 100 }
+	for i,v in pairs(self.condition_zones) do
+		self.condition_zones[i] = 100
+	end
 	return self
 end
 

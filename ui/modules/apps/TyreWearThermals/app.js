@@ -53,13 +53,13 @@ angular.module("beamng.apps")
                         }
                     }
 
-                    function drawWheelData(name, temps, working_temp, condition, camber) {
+                    function drawWheelData(name, temps, working_temp, condition_zones, camber) {
                         if (Object.keys(temps).length == 0) {
                             temps = Array(4).fill(0)
                         }
 
-                        if (condition == undefined) {
-                            condition = [100, 100, 100]
+                        if (condition_zones == undefined) {
+                            condition_zones = [100, 100, 100]
                         }
 
                         ctx.textAlign = 'center';
@@ -92,16 +92,15 @@ angular.module("beamng.apps")
                         // Draw info text
                         ctx.fillStyle = "#ffffffff";
                         ctx.font = 'bold 18pt "Lucida Console", Monaco, monospace';
-                        var conditionAverage = condition.reduce((a, b) => a + b, 0) / condition.length;
+                        var conditionAverage = condition_zones.reduce((a, b) => a + b, 0) / condition_zones.length;
                         ctx.fillText("" + Math.floor(conditionAverage) + "%", cx, y - 8); 
-                        // ctx.fillText("" + Math.ceil(temps[3]) + " C", cx, y - 8);
 
                         var t = conditionAverage / 100;
 
                         var lowHue = 0;
                         var highHue = 248;
 
-                        for (let i = 0; i < 3; i++) {
+                        for (let i = 0; i < condition_zones.length; i++) {
                             var tempT = 1.0 - Math.min(Math.max(temps[i] / working_temp - 0.5, 0), 1);
                             var hue = lowHue + (highHue - lowHue) * tempT;
 
@@ -109,25 +108,27 @@ angular.module("beamng.apps")
                             var radius = { tl: 0, tr: 0, br: 0, bl: 0 };
                             if (i == 0) {
                                 radius = { tl: crad, tr: 0, br: 0, bl: crad };
-                            } else if (i == 2) {
+                            } else if (i == condition_zones.length-1) {
                                 radius = { tl: 0, tr: crad, br: crad, bl: 0 };
                             }
 
+                            const sectionWidth = (w / 3.0 - 1.5) / condition_zones.length * 3
+                            const sectionXOffset = sectionWidth * i + 2
                             ctx.lineWidth = "0";
                             ctx.fillStyle = "rgba(0,0,0,0.45)";
                             ctx.beginPath();
-                            ctx.rect(x + (w / 3.0 * i) + 2, y + 1, w / 3.0 - 4, h - 2);
+                            ctx.rect(x + sectionXOffset, y + 1, sectionWidth, h - 2);
                             ctx.fill();
-                            if (condition[i] / 100 > 0.03) {
-                                var ft = 1.0 - (condition[i] / 100);
+                            if (condition_zones[i] > 30) {
+                                var ft = 1.0 - (condition_zones[i] / 100);
                                 ctx.fillStyle = "hsla(" + hue + ",82%,56%,1)";
                                 ctx.beginPath();
-                                ctx.rect(x + (w / 3.0 * i) + 2, y + h * ft + 1, w / 3.0 - 4, h - h * ft - 2);
+                                ctx.rect(x + sectionXOffset, y + h * ft + 1, sectionWidth, h - h * ft - 2);
                                 ctx.fill();
                             }
                             ctx.lineWidth = "3";
                             ctx.strokeStyle = "rgba(0,0,0,1)";
-                            roundRect(ctx, x + (w / 3.0 * i) + 1, y, w / 3.0 - 2, h, radius, false);
+                            roundRect(ctx, x + sectionXOffset, y, sectionWidth, h, radius, false);
 
                             // Info text
                             ctx.fillStyle = "#ffffffff";
@@ -169,7 +170,7 @@ angular.module("beamng.apps")
                         // ctx.fillStyle = "hsla(" + hue + ",82%,56%,1)";
                         // roundRect(ctx, cx - w / 24.0 - w / 1.75 * (right * 2.0 - 1.0), y + h * 0.2, w / 12.0, h * 0.6, 3.0, true);
                         // Draw core temp
-                        var coreTempT = 1.0 - Math.min(Math.max(temps[3] / working_temp - 0.5, 0), 1);
+                        var coreTempT = 1.0 - Math.min(Math.max(temps[temps.length-1] / working_temp - 0.5, 0), 1);
                         var coreHue = lowHue + (highHue - lowHue) * coreTempT;
                         let coreTempIsDisplayed;
                         if (t < 0.1) {
@@ -179,7 +180,11 @@ angular.module("beamng.apps")
                             ctx.fillStyle = "hsla(" + coreHue + ",82%,56%,1)";
                             coreTempIsDisplayed = 1;
                         }
-                        roundRect(ctx, cx - w / 12.0 - w / 1.75 * (right * 2.0 - 1.0), y + h * 0.2, w / 6, h * 0.6, 3.0, true);
+                        if (right) {
+                            roundRect(ctx, cx - w / 12.0 - w / 1.75, y + h * 0.2, w / 6, h * 0.6, 3.0, true);
+                        } else {
+                            roundRect(ctx, cx - w / 12.0 + w / 1.75, y + h * 0.2, w / 6, h * 0.6, 3.0, true);
+                        }
                     }
 
                     var dataStream = streams.tyrewearandthermals2;
@@ -189,11 +194,12 @@ angular.module("beamng.apps")
                     ctx.textAlign = 'center';
 
                     for (let i = 0; i < dataStream.data.length; i++) {
+                        console.log(dataStream.data[i].condition_zones.length)
                         drawWheelData(
                             dataStream.data[i].name,
                             dataStream.data[i].temp,
                             dataStream.data[i].working_temp,
-                            dataStream.data[i].condition,
+                            dataStream.data[i].condition_zones,
                             dataStream.data[i].camber,
                         );
                     }
