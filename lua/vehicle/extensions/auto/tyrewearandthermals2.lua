@@ -22,18 +22,10 @@ function hotResetAllTyres()
 	end
 end
 
-local function generateStream()
-	local stream = { data = {} }
-	for _, tyre in pairs(tyres) do
-		table.insert(stream.data, {
-			name = tyre.name,
-			temp = { tyre.temperature, tyre.temperature, tyre.temperature, tyre.temperature },
-			working_temp = 85,
-			condition_zones = tyre.condition_zones,
-			camber = tyre.camber_to_ground,
-		})
+local function setEnvironmentTemperature()
+	if powertrain ~= nil and powertrain.currentEnvTemperature ~= nil then
+		env_temp = powertrain.currentEnvTemperature - 273.15
 	end
-	return stream
 end
 
 local function getGroundModelData(id)
@@ -58,12 +50,45 @@ local function getWheelCamberToGround(wheelID)
 	return camber
 end
 
-local oneSecondTimer = 1
+local function generateStream()
+	local stream = { data = {} }
+	for _, tyre in pairs(tyres) do
+		table.insert(stream.data, {
+			name = tyre.name,
+			temp = { tyre.temperature, tyre.temperature, tyre.temperature, tyre.temperature },
+			working_temp = 85,
+			condition_zones = tyre.condition_zones,
+			camber = tyre.camber_to_ground,
+		})
+	end
+	return stream
+end
+
+local function generateDummyStream()
+	local stream = { data = {} }
+	table.insert(stream.data, {
+		name = "not a real tyre",
+		temp = { env_temp, env_temp },
+		working_temp = env_temp,
+		condition_zones = {100},
+		camber = 0
+	})
+	return stream
+end
+
+local oneSecondTimer = 0
 local function updateGFX(dt)
 	oneSecondTimer = oneSecondTimer + dt
-	local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[0].contactMaterialID1)
+	if wheels == nil or wheels.wheelRotators == nil or wheels.wheelRotators[0] == nil then
+		-- if the above statement is true, the vehicle most likely doesn't have tyres
+		local stream = generateDummyStream()
+		gui.send("tyrewearandthermals2", stream)
+		return
+	end
+
 
 	for i, tyre in pairs(tyres) do
+		local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[i].contactMaterialID1)
 		local wheelload = wheels.wheelRotators[i].downForce
 		local wheelname = wheels.wheelRotators[i].name
 		tyre:update(
@@ -80,7 +105,6 @@ local function updateGFX(dt)
 	end
 
 	if oneSecondTimer >= 1 then
-		obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setEnv_temp() end")
 		for _, tyre in pairs(tyres) do
 			hotResetAllTyres()
 		end
@@ -91,25 +115,26 @@ local function updateGFX(dt)
 	gui.send("tyrewearandthermals2", stream)
 end
 
-local function onReset()
+local function generateModTyres()
 	for i, wheel in pairs(wheels.wheelRotators) do
 		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
 			{ totalWeight = 10, temp = 85, wear_rate = 0.005, wheel.tireWidth })
 	end
+end
 
-	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setEnv_temp() end")
+local function onReset()
+	setEnvironmentTemperature()
+	generateModTyres()
+
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setBrakeSettings() end")
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setTyreWearAndThermalVariables() end")
 end
 
 local function onInit()
-	for i, wheel in pairs(wheels.wheelRotators) do
-		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
-			{ totalWeight = 10, temp = 85, wear_rate = 0.005, wheel.tireWidth })
-		end
+	setEnvironmentTemperature()
+	generateModTyres()
 
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setGroundModels() end")
-	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setEnv_temp() end")
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setBrakeSettings() end")
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setTyreWearAndThermalVariables() end")
 end

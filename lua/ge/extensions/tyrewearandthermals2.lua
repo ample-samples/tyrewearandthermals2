@@ -114,13 +114,6 @@ local function setBrakeSettings()
 	if veh then veh:queueLuaCommand(cmd) end
 end
 
-local function setEnv_temp()
-	local env_temp = tonumber(core_environment.getTemperatureK()) - 273.15
-	local cmd = "env_temp = " .. env_temp .. ";"
-	local veh = be:getPlayerVehicle(0)
-	if veh then veh:queueLuaCommand(cmd) end
-end
-
 local function onVehicleDestroyed(vehID)
 	variablesById[vehID] = nil
 	brakeSetting = {}
@@ -143,7 +136,6 @@ local function setTyreWearAndThermalVariables()
 end
 
 M.setBrakeSettings = setBrakeSettings
-M.setEnv_temp = setEnv_temp
 M.setGroundModels = setGroundModels
 
 M.onSettingsChanged = onSettingsChanged
