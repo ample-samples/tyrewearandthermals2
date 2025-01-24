@@ -48,15 +48,13 @@ end
 
 function Tyre:setCamberToGround(camber_to_ground)
 	self.camber_to_ground = camber_to_ground * self.wheelDir
-	local camber_debug = string.format("\nwheelID: %i\nwheelDir: %i\ncamber: %f", self.wheelID, self.wheelDir, self.camber_to_ground)
-	dump(camber_debug)
 	return self
 end
 
 function ThermalWearTyre:setCamberToGround(camber_to_ground)
 	self.camber_to_ground = camber_to_ground * self.wheelDir
 	local camber_debug = string.format("\nwheelID: %i\nwheelDir: %i\ncamber: %f", self.wheelID, self.wheelDir, self.camber_to_ground)
-	dump(camber_debug)
+	-- dump(camber_debug)
 	return self
 end
 

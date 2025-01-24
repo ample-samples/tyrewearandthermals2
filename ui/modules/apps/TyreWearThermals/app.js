@@ -15,8 +15,10 @@ angular.module("beamng.apps")
                     c.width = data.width
                     c.height = data.height
                 });
+                let wheelCount;
                 scope.$on("streamsUpdate", function (event, streams) {
                     // From: https://stackoverflow.com/a/3368118
+                    var wheelCount = streams.tyrewearandthermals2.data.length;
                     function roundRect(
                         ctx,
                         x,
@@ -65,16 +67,21 @@ angular.module("beamng.apps")
                         var right = 0;
                         var back = 0;
 
+                        var w = c.width / 3.5;
+                        var h = c.height / 3.5;
+                        h = h / (wheelCount / 4)
                         if (name == "RR" || name == "RL") {
                             back = 1;
                         }
 
-                        if (name == "FR" || name == "RR") {
+                        if (name == "RR2" || name == "RL2") {
+                            back = 2;
+                        }
+
+                        if (name == "FR" || name == "RR" || name == "RR2") {
                             right = 1;
                         }
 
-                        var w = c.width / 3.5;
-                        var h = c.height / 3.5;
                         var x = w * 0.5 + ((w * 1.5) * right);
                         var y = (h * 0.5 + ((h * 1.5) * back)) + h * 0.1;
                         var cx = x + w * 0.5;

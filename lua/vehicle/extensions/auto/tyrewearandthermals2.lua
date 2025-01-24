@@ -64,6 +64,8 @@ local function updateGFX(dt)
 	local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[0].contactMaterialID1)
 
 	for i, tyre in pairs(tyres) do
+		local wheelload = wheels.wheelRotators[i].downForce
+		local wheelname = wheels.wheelRotators[i].name
 		tyre:update(
 			dt,
 			getWheelCamberToGround(i),
@@ -104,7 +106,7 @@ local function onInit()
 	for i, wheel in pairs(wheels.wheelRotators) do
 		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
 			{ totalWeight = 10, temp = 85, wear_rate = 0.005, wheel.tireWidth })
-	end
+		end
 
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setGroundModels() end")
 	obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setEnv_temp() end")
