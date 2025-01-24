@@ -194,7 +194,6 @@ angular.module("beamng.apps")
                     ctx.textAlign = 'center';
 
                     for (let i = 0; i < dataStream.data.length; i++) {
-                        console.log(dataStream.data[i].condition_zones.length)
                         drawWheelData(
                             dataStream.data[i].name,
                             dataStream.data[i].temp,
