@@ -6,6 +6,7 @@ tyreVarsFront = nil
 tyreVarsRear = nil
 
 extensions.load("ThermalWearTyre")
+extensions.load("standardiseTyreNames")
 
 local useTyre = ThermalWearTyre
 tyres = {} -- left global so other mods can interact with it
@@ -50,7 +51,7 @@ local function getWheelCamberToGround(wheelID)
 	return camber
 end
 
-local function generateStream()
+local function generateStream(tyres)
 	local stream = { data = {} }
 	for _, tyre in pairs(tyres) do
 		table.insert(stream.data, {
@@ -64,25 +65,40 @@ local function generateStream()
 	return stream
 end
 
-local function generateDummyStream()
-	local stream = { data = {} }
-	table.insert(stream.data, {
-		name = "not a real tyre",
-		temp = { env_temp, env_temp },
-		working_temp = env_temp,
-		condition_zones = {100},
-		camber = 0
-	})
-	return stream
+local dummyStream = { data = {
+	name = "not a real tyre",
+	temp = { env_temp, env_temp },
+	working_temp = env_temp,
+	condition_zones = {100},
+	camber = 0
+} }
+
+local function getWheelsAndNamesPositions(wheels)
+	-- INFO: unused, will be used to standardise tyre names and
+	-- their position relative to the vehicle and its orentation
+	-- so the UI can display them
+	local wheelNamesAndPositions = {}
+	for i,v in pairs(wheels.wheelRotators) do
+		local localVectNode1 = obj:getNodePosition(wheels.wheelRotators[i].node2)
+		local wheelName = wheels.wheelRotators[i].name
+		wheelNamesAndPositions[wheelName] = localVectNode1
+	end
+	return wheelNamesAndPositions
 end
 
 local oneSecondTimer = 0
 local function updateGFX(dt)
+	-- INFO: unused, will be used to standardise tyre names and
+	-- their position relative to the vehicle and its orentation
+	-- so the UI can display them
+	-- local vehicleVectorForward = obj:getDirectionVector()
+	-- local wheelNamesAndPositions = getWheelsAndNamesPositions(wheels)
+	-- local standarisedNames = standardiseTyreNames.standardise(wheelNamesAndPositions, vehicleVectorForward)
+
 	oneSecondTimer = oneSecondTimer + dt
 	if wheels == nil or wheels.wheelRotators == nil or wheels.wheelRotators[0] == nil then
 		-- if the above statement is true, the vehicle most likely doesn't have tyres
-		local stream = generateDummyStream()
-		gui.send("tyrewearandthermals2", stream)
+		gui.send("tyrewearandthermals2", dummyStream)
 		return
 	end
 

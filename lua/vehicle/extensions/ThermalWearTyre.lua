@@ -131,7 +131,6 @@ end
 
 -- INFO: temporary example
 function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
-	print(env_temp)
 	self:setCamberToGround(camber_to_ground)
 	for i, zone in pairs(self.condition_zones) do
 		self.condition_zones[i] = zone - (zone - self.wear_rate) * i * dt / 10
