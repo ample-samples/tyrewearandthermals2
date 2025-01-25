@@ -53,7 +53,7 @@ angular.module("beamng.apps")
                         }
                     }
 
-                    function drawWheelData(name, temps, working_temp, condition_zones, camber) {
+                    function drawWheelData(name, temps, working_temp, condition_zones, camber, tyreNumber) {
                         if (Object.keys(temps).length == 0) {
                             temps = Array(4).fill(0)
                         }
@@ -70,16 +70,20 @@ angular.module("beamng.apps")
                         var w = c.width / 3.5;
                         var h = c.height / 3.5;
                         h = h / (wheelCount / 4)
-                        if (name == "RR" || name == "RL") {
-                            back = 1;
-                        }
 
-                        if (name == "RR2" || name == "RL2") {
-                            back = 2;
-                        }
+                        if (wheelCount <= 4) {
+                            if (name == "RR" || name == "RL") {
+                                back = 1;
+                            }
 
-                        if (name == "FR" || name == "RR" || name == "RR2") {
-                            right = 1;
+                            if (name == "FR" || name == "RR" || name == "RR2") {
+                                right = 1;
+                            }
+                        } else {
+                            if (tyreNumber % 2 == 1) {
+                                right = 1
+                            }
+                            back = Math.floor(tyreNumber / 2)
                         }
 
                         var x = w * 0.5 + ((w * 1.5) * right);
@@ -200,6 +204,7 @@ angular.module("beamng.apps")
                             dataStream.data[i].working_temp,
                             dataStream.data[i].condition_zones,
                             dataStream.data[i].camber,
+                            i
                         );
                     }
                 });
