@@ -128,6 +128,7 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 		startingTemp = tyreParams.idealTemp
 	end
 
+	-- NOTE: maybe change temp zones to energy zones in future?
 	for i = 1, self.zoneCount, 1 do
 		self.condition_zones[i] = 100
 		self.temperatures.l1[i] = startingTemp
