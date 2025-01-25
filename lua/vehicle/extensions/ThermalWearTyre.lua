@@ -118,36 +118,57 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.wheelDir = wheelDir
 	self.totalWeight = tyreParams.weight
 	self.surfaceEnergies = {}
-	self.condition_zones = { 100, 100, 100 }
-	self.temperatures = {}
+	self.zoneCount = 10
+	self.condition_zones = {}
+	self.temperatures = { l1 = {}, l2 = {}, sidewall = {} }
 	self.idealTemp = tyreParams.idealTemp
+
+	local startingTemp = TWT.env_temp
 	if tyreParams.isPreheated then
-		for k,v in pairs(self.condition_zones) do
-			self.temperatures[k] = tyreParams.idealTemp
-		end
-	else
-		for k,v in pairs(self.condition_zones) do
-			self.temperatures[k] = TWT.env_temp
-		end
+		startingTemp = tyreParams.idealTemp
 	end
+
+	for i = 1, self.zoneCount, 1 do
+		self.condition_zones[i] = 100
+		self.temperatures.l1[i] = startingTemp
+		self.temperatures.l2[i] = startingTemp
+	end
+	self.temperatures.sidewall.left = startingTemp
+	self.temperatures.sidewall.right = startingTemp
+	self.temperatures.l3 = startingTemp
+	self.temperatures.l4 = startingTemp
+	self.temperatures.l5 = startingTemp
+	self.temperatures.l6 = startingTemp
+	self.temperatures.rim = startingTemp
+	self.temperatures.innerAir = startingTemp
 	return self
 end
 
 function ThermalWearTyre:setTemperature(i, temp)
-	self.temperatures[i] = temp
+	self.temperatures.l1[i] = temp
 	return self
 end
 
 -- INFO: temporary example
 function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self:setCamberToGround(camber_to_ground)
-	for i, zone in pairs(self.condition_zones) do
-		self.condition_zones[i] = zone - (zone - self.wear_rate) * i * dt / 10
+	for i=1, self.zoneCount do
+		local currentCondition = self.condition_zones[i] 
+		self.condition_zones[i] = currentCondition - (currentCondition - self.wear_rate) * i * dt / 10
 	end
-	for i, zone in pairs(self.temperatures) do
-		self.temperatures[i] = zone - 40 * i * dt / 10
+	for i=1, self.zoneCount do
+		self.temperatures.l1[i] = self.temperatures.l1[i] - 40 * i * dt / 10
+		self.temperatures.l2[i] = self.temperatures.l2[i] - 40 * i * dt / 10
 	end
-
+	self.temperatures.sidewall.left = self.temperatures.sidewall.left - 40 * dt / 10
+	self.temperatures.sidewall.right = self.temperatures.sidewall.right - 40 * dt / 10
+	self.temperatures.l3 = self.temperatures.l3 - 40 * dt / 10
+	self.temperatures.l4 = self.temperatures.l4 - 40 * dt / 10
+	self.temperatures.l5 = self.temperatures.l5 - 40 * dt / 10
+	self.temperatures.l6 = self.temperatures.l6 - 40 * dt / 10
+	self.temperatures.rim = self.temperatures.rim - 40 * dt / 10
+	self.temperatures.innerAir = self.temperatures.innerAir - 40 * dt / 10
+	dump(self.temperatures)
 	return self
 end
 
@@ -155,25 +176,37 @@ function ThermalWearTyre:setWear()
 end
 
 function ThermalWearTyre:hotReset()
-	for i,v in pairs(self.temperatures) do
-		self.temperatures[i] = self.idealTemp
-	end
-	for i,v in pairs(self.condition_zones) do
+	for i=1, self.zoneCount do
+		self.temperatures.l1[i] = self.idealTemp
+		self.temperatures.l2[i] =  self.idealTemp
 		self.condition_zones[i] = 100
 	end
+	self.temperatures.sidewall.left =  self.idealTemp
+	self.temperatures.sidewall.right =  self.idealTemp
+	self.temperatures.l3 =  self.idealTemp
+	self.temperatures.l4 =  self.idealTemp
+	self.temperatures.l5 =  self.idealTemp
+	self.temperatures.l6 =  self.idealTemp
+	self.temperatures.rim =  self.idealTemp
+	self.temperatures.innerAir = self.idealTemp
 	return self
 end
 
 function ThermalWearTyre:coldReset(env_temp)
 	env_temp = env_temp or TWT.env_temp
-	self.temperature = env_temp
-	for k,v in pairs(self.temperatures) do
-		self.temperatures[k] = env_temp
-	end
-
-	for i,v in pairs(self.condition_zones) do
+	for i=1, self.zoneCount do
+		self.temperatures.l1[i] = env_temp
+		self.temperatures.l2[i] =  env_temp
 		self.condition_zones[i] = 100
 	end
+	self.temperatures.sidewall.left =  env_temp
+	self.temperatures.sidewall.right =  env_temp
+	self.temperatures.l3 =  env_temp
+	self.temperatures.l4 =  env_temp
+	self.temperatures.l5 =  env_temp
+	self.temperatures.l6 =  env_temp
+	self.temperatures.rim =  env_temp
+	self.temperatures.innerAir = env_temp
 	return self
 end
 
