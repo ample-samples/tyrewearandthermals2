@@ -1,9 +1,12 @@
 local M = {}
-groundModels = {} -- made global so GELua can access and change it
-env_temp = 20
-brakeSettings = { 12, 12 }
-tyreVarsFront = nil
-tyreVarsRear = nil
+TWT = {} -- made global so GELua can access and change it
+TWT.groundModels = {} 
+TWT.env_temp = 20
+TWT.brakeSettings = { 12, 12 }
+TWT.tyreVarsFront = nil
+TWT.tyreVarsRear = nil
+
+dump(TWT)
 
 extensions.load("ThermalWearTyre")
 extensions.load("standardiseTyreNames")
@@ -11,13 +14,13 @@ extensions.load("standardiseTyreNames")
 local useTyre = ThermalWearTyre
 tyres = {} -- left global so other mods can interact with it
 
-function coldResetAllTyres()
+function TWT.coldResetAllTyres()
 	for _, tyre in pairs(tyres) do
 		tyre:coldReset()
 	end
 end
 
-function hotResetAllTyres()
+function TWT.hotResetAllTyres()
 	for _, tyre in pairs(tyres) do
 		tyre:hotReset()
 	end
@@ -25,7 +28,7 @@ end
 
 local function setEnvironmentTemperature()
 	if powertrain ~= nil and powertrain.currentEnvTemperature ~= nil then
-		env_temp = powertrain.currentEnvTemperature - 273.15
+		TWT.env_temp = powertrain.currentEnvTemperature - 273.15
 	end
 end
 
@@ -33,7 +36,7 @@ local function getGroundModelData(id)
 	local materials, materialsMap = particles.getMaterialsParticlesTable()
 	local matData = materials[id] or {}
 	local name = matData.name or "DOESNT EXIST"
-	local data = groundModels[name] or { staticFrictionCoefficient = 1, slidingFrictionCoefficient = 1 }
+	local data = TWT.groundModels[name] or { staticFrictionCoefficient = 1, slidingFrictionCoefficient = 1 }
 	return name, data
 end
 
@@ -56,7 +59,7 @@ local function generateStream(tyres)
 	for _, tyre in pairs(tyres) do
 		table.insert(stream.data, {
 			name = tyre.name,
-			temp = { tyre.temperature, tyre.temperature, tyre.temperature, tyre.temperature },
+			temps = tyre.temperatures,
 			working_temp = 85,
 			condition_zones = tyre.condition_zones,
 			camber = tyre.camber_to_ground,
@@ -67,8 +70,8 @@ end
 
 local dummyStream = { data = {
 	name = "not a real tyre",
-	temp = { env_temp, env_temp },
-	working_temp = env_temp,
+	temps = { TWT.env_temp, TWT.env_temp },
+	working_temp = TWT.env_temp,
 	condition_zones = {100},
 	camber = 0
 } }
@@ -111,7 +114,7 @@ local function updateGFX(dt)
 			dt,
 			getWheelCamberToGround(i),
 			{
-				env_temp = env_temp,
+				env_temp = TWT.env_temp,
 				load = wheels.wheelRotators[i].downForce,
 				angularVel = wheels.wheelRotators[i].angularVelocity,
 				propulsionTorque = wheels.wheelRotators[i].propulsionTorque,
@@ -121,9 +124,7 @@ local function updateGFX(dt)
 	end
 
 	if oneSecondTimer >= 1 then
-		for _, tyre in pairs(tyres) do
-			hotResetAllTyres()
-		end
+		TWT.hotResetAllTyres()
 		oneSecondTimer = oneSecondTimer % 1 -- Loops every 1 seconds
 	end
 
@@ -134,7 +135,7 @@ end
 local function generateModTyres()
 	for i, wheel in pairs(wheels.wheelRotators) do
 		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
-			{ totalWeight = 10, temp = 85, wear_rate = 0.005, wheel.tireWidth })
+			{ totalWeight = 10, idealTemp = 85, wear_rate = 0.005, wheel.tireWidth, isPreheated = true })
 	end
 end
 

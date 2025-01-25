@@ -2,7 +2,7 @@ local M = {}
 
 local function setGroundModels()
 	dump("getGroundModels called")
-	local cmd = "groundModels = {"
+	local cmd = "TWT.groundModels = {"
 	for k, v in pairs(core_environment.groundModels) do
 		local name = tostring(k)
 		if #name > 0 then
@@ -109,7 +109,7 @@ local function setBrakeSettings()
 		core_vehicle_manager.getPlayerVehicleData().vdata.variables["$WheelCoolingDuctFront"].val or 12,
 		core_vehicle_manager.getPlayerVehicleData().vdata.variables["$WheelCoolingDuctRear"].val or 12
 	}
-	local cmd = "brakeSettings = {" .. brakeSettings[1] .. ", " .. brakeSettings[2] .. "};"
+	local cmd = "TWT.brakeSettings = {" .. brakeSettings[1] .. ", " .. brakeSettings[2] .. "};"
 	local veh = be:getPlayerVehicle(0)
 	if veh then veh:queueLuaCommand(cmd) end
 end
@@ -124,11 +124,11 @@ local function setTyreWearAndThermalVariables()
 	for _, active_part in pairs(active_parts) do
 		local slotType = active_part["slotType"]
 		if type(slotType) == "string" and string.sub(slotType, 1, 6) == "tire_F" then
-			local cmd = "tyreVarsFront = " .. serialize(active_part["twatVarsGeneral"]) .. ";"
+			local cmd = "TWT.tyreVarsFront = " .. serialize(active_part["twatVarsGeneral"]) .. ";"
 			local veh = be:getPlayerVehicle(0)
 			if veh then veh:queueLuaCommand(cmd) end
 		elseif type(slotType) == "string" and string.sub(slotType, 1, 5) == "tire_" then
-			local cmd = "tyreVarsRear = " .. serialize(active_part["twatVarsGeneral"]) .. ";"
+			local cmd = "TWT.tyreVarsRear = " .. serialize(active_part["twatVarsGeneral"]) .. ";"
 			local veh = be:getPlayerVehicle(0)
 			if veh then veh:queueLuaCommand(cmd) end
 		end

@@ -200,7 +200,7 @@ angular.module("beamng.apps")
                     for (let i = 0; i < dataStream.data.length; i++) {
                         drawWheelData(
                             dataStream.data[i].name,
-                            dataStream.data[i].temp,
+                            dataStream.data[i].temps,
                             dataStream.data[i].working_temp,
                             dataStream.data[i].condition_zones,
                             dataStream.data[i].camber,

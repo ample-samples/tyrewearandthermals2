@@ -111,16 +111,25 @@ end
 
 -- INFO: constructor
 function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
-	print(string.format("initial env temp %f", env_temp))
 	local self = setmetatable({}, ThermalWearTyre)
 
 	self.name = name
 	self.wheelID = wheelID
 	self.wheelDir = wheelDir
-	self.temperatures = tyreParams.temp
 	self.totalWeight = tyreParams.weight
 	self.surfaceEnergies = {}
 	self.condition_zones = { 100, 100, 100 }
+	self.temperatures = {}
+	self.idealTemp = tyreParams.idealTemp
+	if tyreParams.isPreheated then
+		for k,v in pairs(self.condition_zones) do
+			self.temperatures[k] = tyreParams.idealTemp
+		end
+	else
+		for k,v in pairs(self.condition_zones) do
+			self.temperatures[k] = TWT.env_temp
+		end
+	end
 	return self
 end
 
@@ -135,6 +144,9 @@ function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	for i, zone in pairs(self.condition_zones) do
 		self.condition_zones[i] = zone - (zone - self.wear_rate) * i * dt / 10
 	end
+	for i, zone in pairs(self.temperatures) do
+		self.temperatures[i] = zone - 40 * i * dt / 10
+	end
 
 	return self
 end
@@ -143,7 +155,9 @@ function ThermalWearTyre:setWear()
 end
 
 function ThermalWearTyre:hotReset()
-	self.temperatures = ThermalWearTyre.temperature
+	for i,v in pairs(self.temperatures) do
+		self.temperatures[i] = self.idealTemp
+	end
 	for i,v in pairs(self.condition_zones) do
 		self.condition_zones[i] = 100
 	end
@@ -151,7 +165,12 @@ function ThermalWearTyre:hotReset()
 end
 
 function ThermalWearTyre:coldReset(env_temp)
-	self.temperatures = env_temp
+	env_temp = env_temp or TWT.env_temp
+	self.temperature = env_temp
+	for k,v in pairs(self.temperatures) do
+		self.temperatures[k] = env_temp
+	end
+
 	for i,v in pairs(self.condition_zones) do
 		self.condition_zones[i] = 100
 	end
