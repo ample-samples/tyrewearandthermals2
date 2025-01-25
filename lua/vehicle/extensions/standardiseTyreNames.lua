@@ -17,11 +17,20 @@ local function standardise(tyres, vehicleOrientation)
 	-- the xy portion of a tyre position can be thought of as a vector relative to 
 	-- the vehicle's location, however its rotation is relative to the world, not the vehicle.
 	-- Because of this, it must be rotated by vehicle's orientation relative to world space.
+	--
+	-- This function came about because there is seemingly no standardised way of referring to a 
+	-- tyre base on its position. Some failed attempts in finding this used:
+	-- - Tyre names, e.g. RR1, these are not standard accros vehcle configs.
+	--	 Some vehicles use RR1 as the right outer wheel on the first axle behind the front wheels and
+	--	 some don't
+	-- - Tyre index within the `wheels` global variable. Order is not consisted with tyre position
 	local vehicleOrientation2D = { x = vehicleOrientation.x, y = vehicleOrientation.y }
 	local tyresPos2D = {}
 	for tyreName, tyrePos in pairs(tyres) do
 		tyresPos2D[tyreName] = { x = tyrePos.x, y = tyrePos.y}
 	end
+	dump(vehicleOrientation2D)
+	dump(tyresPos2D)
 end
 
 
