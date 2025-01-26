@@ -53,7 +53,7 @@ angular.module("beamng.apps")
                         }
                     }
 
-                    function drawWheelData(name, temps, working_temp, condition_zones, camber, tyreNumber) {
+                    function drawWheelData(name, temps, working_temp, condition_zones, camber, hasWeightOnWheel, tyreNumber) {
                         if (Object.keys(temps).length == 0) {
                             temps = Array(4).fill(0)
                         }
@@ -168,19 +168,21 @@ angular.module("beamng.apps")
                             // ctx.lineTo(x + w * 0.5 + w * (load_bias * 0.5) - 6, y + h + 8);
                             // ctx.lineTo(x + w * 0.5 + w * (load_bias * 0.5) + 6, y + h + 8);
                             // ctx.fill();
-                            // camber
-                            ctx.fillStyle = "rgba(255,50,50,0.85)";
-                            ctx.beginPath();
-                            ctx.moveTo(x + w * 0.5 + w * (camber * 0.2 * 0.5), y - 2);
-                            ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) - 6, y - 8);
-                            ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) + 6, y - 8);
-                            ctx.fill();
+                            if (hasWeightOnWheel) {
+                                // camber
+                                ctx.fillStyle = "rgba(255,50,50,0.85)";
+                                ctx.beginPath();
+                                ctx.moveTo(x + w * 0.5 + w * (camber * 0.2 * 0.5), y - 2);
+                                ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) - 6, y - 8);
+                                ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) + 6, y - 8);
+                                ctx.fill();
 
-                            ctx.beginPath();
-                            ctx.moveTo(x + w * 0.5 + w * (camber * 0.2 * 0.5), y + h + 2);
-                            ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) - 6, y + h + 8);
-                            ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) + 6, y + h + 8);
-                            ctx.fill();
+                                ctx.beginPath();
+                                ctx.moveTo(x + w * 0.5 + w * (camber * 0.2 * 0.5), y + h + 2);
+                                ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) - 6, y + h + 8);
+                                ctx.lineTo(x + w * 0.5 + w * (camber * 0.2 * 0.5) + 6, y + h + 8);
+                                ctx.fill();
+                            }
                         }
                         // Draw brakes
                         // var brakeTempT = 1.0 - Math.min(Math.max(brake_temp / brake_working_temp - 0.5, 0), 1);
@@ -218,6 +220,7 @@ angular.module("beamng.apps")
                             dataStream.data[i].working_temp,
                             dataStream.data[i].condition_zones,
                             dataStream.data[i].camber,
+                            dataStream.data[i].weightOnWheel,
                             i
                         );
                     }

@@ -6,8 +6,6 @@ TWT.brakeSettings = { 12, 12 }
 TWT.tyreVarsFront = nil
 TWT.tyreVarsRear = nil
 
-dump(TWT)
-
 extensions.load("ThermalWearTyre")
 extensions.load("standardiseTyreNames")
 
@@ -63,6 +61,7 @@ local function generateStream(tyres)
 			working_temp = 85,
 			condition_zones = tyre.condition_zones,
 			camber = tyre.camber_to_ground,
+			weightOnWheel = tyre:hasWeightOnWheel()
 		})
 	end
 	return stream
@@ -105,7 +104,6 @@ local function updateGFX(dt)
 		return
 	end
 
-
 	for i, tyre in pairs(tyres) do
 		local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[i].contactMaterialID1)
 		local wheelload = wheels.wheelRotators[i].downForce
@@ -115,7 +113,7 @@ local function updateGFX(dt)
 			getWheelCamberToGround(i),
 			{
 				env_temp = TWT.env_temp,
-				load = wheels.wheelRotators[i].downForce,
+				load = wheels.wheelRotators[i].downForceRaw,
 				angularVel = wheels.wheelRotators[i].angularVelocity,
 				propulsionTorque = wheels.wheelRotators[i].propulsionTorque,
 				brakingTorque = wheels.wheelRotators[i].brakingTorque,

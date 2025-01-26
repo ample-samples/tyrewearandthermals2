@@ -150,9 +150,11 @@ function ThermalWearTyre:setTemperature(i, temp)
 	return self
 end
 
+
 -- INFO: temporary example
 function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self:setCamberToGround(camber_to_ground)
+	self.load = tyreParams.load
 	for i=1, self.zoneCount do
 		local currentCondition = self.condition_zones[i] 
 		self.condition_zones[i] = currentCondition - (currentCondition - self.wear_rate) * i * dt / 10
@@ -169,8 +171,16 @@ function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self.temperatures.l6 = self.temperatures.l6 - 40 * dt / 10
 	self.temperatures.rim = self.temperatures.rim - 40 * dt / 10
 	self.temperatures.innerAir = self.temperatures.innerAir - 40 * dt / 10
-	dump(self.temperatures)
 	return self
+end
+
+function ThermalWearTyre:hasWeightOnWheel()
+	print(string.format("Load: %f", self.load))
+	if self.load == 0 then
+		return false
+	else
+		return true
+	end
 end
 
 function ThermalWearTyre:setWear()
