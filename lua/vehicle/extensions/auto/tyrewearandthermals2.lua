@@ -56,7 +56,7 @@ local function generateStream(tyres)
 			name = tyre.name,
 			temps = tyre.matNodes.l1.temperature,
 			working_temp = 85,
-			condition_zones = tyre.condition_zones,
+			condition_zones = tyre.treadConditions,
 			camber = tyre.camber_to_ground,
 			weightOnWheel = tyre:hasWeightOnWheel()
 		})

@@ -23,7 +23,7 @@ ThermalWearTyre = {
 
 WearTyre = {
 	type = "WearTyre",
-	condition_zones = { 100, 100, 100 },
+	treadConditions = { 100, 100, 100 },
 	wear_rate = 0.01
 }
 
@@ -72,7 +72,7 @@ function WearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.wheelDir = wheelDir
 	self.name = name
 	self.wheelID = wheelID
-	self.condition_zones = { 100, 100, 100 }
+	self.treadConditions = { 100, 100, 100 }
 	self.wear_rate = tyreParams.wear_rate
 
 	return self
@@ -83,19 +83,19 @@ function WearTyre:update(dt, camber_to_ground, tyreParams)
 	local load = tyreParams.load
 	local angular_vel = tyreParams.angularVel * self.wheelDir
 	local propulsionTorque = tyreParams.propulsionTorque * self.wheelDir
-	for i, zone in pairs(self.condition_zones) do
+	for i, zone in pairs(self.treadConditions) do
 		-- INFO: ADDITIONAL THINGS WHICH AFFECT WEAR
 		-- Contact pressure
 		-- Slip * load
 		local wear_amount = math.abs(angular_vel * (propulsionTorque - tyreParams.brakingTorque))
-		self.condition_zones[i] = zone - min_or_zero(wear_amount, wear_min) * self.wear_rate / 1000000
-		self.condition_zones[i] = math.max(self.condition_zones[i], 0)
+		self.treadConditions[i] = zone - min_or_zero(wear_amount, wear_min) * self.wear_rate / 1000000
+		self.treadConditions[i] = math.max(self.condition_zones[i], 0)
 	end
 	return self
 end
 
 function WearTyre:reset()
-	self.condition_zones = { 100, 100, 100 }
+	self.treadConditions = { 100, 100, 100 }
 	return self
 end
 
@@ -116,7 +116,20 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.wheelDir = wheelDir
 	self.tyreMass = tyreParams.tyreMass
 	self.zoneCount = 10
-	self.condition_zones = {}
+	self.treadConditions = {}
+
+	local startingTemp = TWT.env_temp
+	if tyreParams.isPreheated then
+		startingTemp = tyreParams.idealTemp
+	end
+
+	local defaultMatName = "testMaterial1"
+	local defaultAirMatName = "nitrogen"
+	local treadMatName = tyreParams.treadMatName or defaultMatName
+	local carcassMatName = tyreParams.carcassMatName or defaultMatName
+	local sidewallMatName = tyreParams.sidewallMatName or defaultMatName
+	local innerAirMatName = tyreParams.innerAirMatName or defaultAirMatName
+
 	-- TODO:
 	-- matNodes, short for materialNodes
 	-- these matNodes contain information for each simulated point on the tyre:
@@ -139,22 +152,9 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 		
 
 	self.idealTemp = tyreParams.idealTemp
-
-	local startingTemp = TWT.env_temp
-	if tyreParams.isPreheated then
-		startingTemp = tyreParams.idealTemp
-	end
-
-	local defaultMatName = "testMaterial1"
-	local defaultAirMatName = "nitrogen"
-	local treadMatName = tyreParams.treadMatName or defaultMatName
-	local carcassMatName = tyreParams.carcassMatName or defaultMatName
-	local sidewallMatName = tyreParams.sidewallMatName or defaultMatName
-	local innerAirMatName = tyreParams.innerAirMatName or defaultAirMatName
-
 	-- NOTE: maybe change temp zones to energy zones in future?
 	for i = 1, self.zoneCount, 1 do
-		self.condition_zones[i] = 100
+		self.treadConditions[i] = 100
 		self.matNodes.l1.matName = treadMatName
 		self.matNodes.l2.matName = treadMatName
 		self.matNodes.l3.matName = treadMatName
@@ -186,8 +186,8 @@ function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self.load = tyreParams.load
 	if self.disabled then return end
 	for i = 1, self.zoneCount do
-		local currentCondition = self.condition_zones[i]
-		self.condition_zones[i] = currentCondition - (currentCondition - self.wear_rate) * i * dt / 10
+		local currentCondition = self.treadConditions[i]
+		self.treadConditions[i] = currentCondition - (currentCondition - self.wear_rate) * i * dt / 10
 		self.matNodes.l1.temperature[i] = self.matNodes.l1.temperature[i] - 40 * i * dt / 10
 		self.matNodes.l2.temperature[i] = self.matNodes.l2.temperature[i] - 40 * i * dt / 10
 		self.matNodes.l3.temperature[i] = self.matNodes.l3.temperature[i] - 40 * dt / 10
@@ -237,7 +237,7 @@ end
 function ThermalWearTyre:changeTyre(temp)
 	temp = temp or TWT.env_temp
 	for i = 1, self.zoneCount do
-		self.condition_zones[i] = 100
+		self.treadConditions[i] = 100
 	end
 	self:setTemperatures(temp)
 	return self
