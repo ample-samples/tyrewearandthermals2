@@ -180,7 +180,6 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	return self
 end
 
--- INFO: temporary example
 function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self:setCamberToGround(camber_to_ground)
 	self.load = tyreParams.load
@@ -216,6 +215,57 @@ function ThermalWearTyre:hasWeightOnWheel()
 end
 
 function ThermalWearTyre:setWear()
+end
+
+function ThermalWearTyre:getNodeTemperature(nodeName, i)
+end
+
+function ThermalWearTyre:getNodeEnergy(nodeName, i)
+end
+
+function ThermalWearTyre:setNodeTemperature(temp, nodeName, i)
+	-- sets the temperature of the specified node.
+end
+
+function ThermalWearTyre:setNodeEnergy(energy, nodeName, i)
+end
+
+function ThermalWearTyre:updateNodeEnergy(nodeName, i)
+	-- updates the energy of the specified node, based on its:
+	-- - temperature
+	-- - mass
+	-- - specific heat capacity
+
+	-- INFO: possible inputs
+	-- l1, int
+	-- l2, int
+	-- l3, int
+	-- l4, nil
+	-- l5, nil
+	-- l6, nil
+	-- string, int|nil
+	-- rim, nil
+	-- sidewall.left, nil
+	-- sidewall.right, nil
+end
+
+function ThermalWearTyre:updateNodeTemperature(nodeName, i)
+	-- updates the temperature of the specified node, based on its:
+	-- - energy
+	-- - mass
+	-- - specific heat capacity
+
+	-- INFO: possible inputs
+	-- string, int|nil
+	-- rim, nil
+	-- sidewall.left, nil
+	-- sidewall.right, nil
+	-- l6, nil
+	-- l5, nil
+	-- l4, nil
+	-- l3, int
+	-- l2, int
+	-- l1, int
 end
 
 function ThermalWearTyre:setTemperatures(temp)

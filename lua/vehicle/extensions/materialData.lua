@@ -5,6 +5,7 @@ local M = {}
 
 -- INFO:
 -- This acts as a lookup table for various materials
+-- It might be slow to create a table for each node every frame, to be investigated
 local lut = {}
 
 -- INFO:
