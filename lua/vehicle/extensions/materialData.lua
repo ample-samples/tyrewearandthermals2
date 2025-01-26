@@ -3,12 +3,28 @@
 
 local M = {}
 
+-- INFO:
+-- units:
+-- specificHeatCapacity : J/g degreesC
+-- density : Kg/m3
+-- gasConstant : J/Kg
+-- hardness : relative : 1-10
+
 local function testMaterial1()
 	local material = {
 		hysteresisFactor = 1,
-		hardness = 1,
+		hardness = 8,
 		elasticity = 1,
-		specificHeatCapacity = 1
+		specificHeatCapacity = 1,
+		density = 1000
+	}
+	return material
+end
+
+local function air()
+	local material = {
+		specificHeatCapacity = 1.005,
+		gasConstant = 287
 	}
 	return material
 end
@@ -32,8 +48,9 @@ local function getmaterial(material)
 		matRoadStandard = matRoadStandard,
 		testMaterial1 = testMaterial1
 	}
+	if lut[material] then return lut[material]() end
 
-	return lut[material]
+	return matRoadStandard()
 end
 
 M.getmaterial = getmaterial
