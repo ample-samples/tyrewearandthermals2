@@ -10,7 +10,8 @@ local lut = {}
 -- INFO:
 -- units:
 -- specificHeatCapacity : { C, J/(g degreesC) }
--- - this changes by about 4% from 20C to 100C
+-- - for rubber, this changes by about 4% from 20C to 100C
+-- specificHeatCapacityKgAt0DegC1Atm = J/((g degreesC)),
 -- density : Kg/m3
 -- gasConstant : J/Kg
 -- hardness : relative : 1-10
@@ -29,9 +30,13 @@ lut.testMaterial1 = testMaterial1
 
 -- INFO: 
 -- Air accounts for about 2% of the energy in the tyre, negligible
+-- Some of these values are used to simplify the model
 local function air()
 	local material = {
-		specificHeatCapacity = 1.005,
+		specificHeatCapacityAt0DegCAnd1Atm = 1.006,
+		specificHeatCapacityPerDegC = 0.00008,
+		-- Specific heat capacity doubles from 0% to 100% relative humidity
+		specificHeatCapacityPer1PercentRelativeHumidity = 0.01,
 		gasConstant = 287
 	}
 	return material
