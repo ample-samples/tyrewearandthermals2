@@ -121,6 +121,14 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.zoneCount = 10
 	self.condition_zones = {}
 	self.temperatures = { l1 = {}, l2 = {}, sidewall = {} }
+	-- TODO:
+	-- matNodes, short for materialNodes
+	-- these matNodes contain information for each simulated point on the tyre:
+	-- - temperature
+	-- - energy
+	-- - matName
+	--   - a key to a material lookup table
+	self.matNodes = { l1 = {}, l2 = {}, sidewall = {} }
 	self.idealTemp = tyreParams.idealTemp
 
 	local startingTemp = TWT.env_temp
@@ -140,8 +148,8 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.temperatures.l4 = startingTemp
 	self.temperatures.l5 = startingTemp
 	self.temperatures.l6 = startingTemp
-	self.temperatures.rim = startingTemp
 	self.temperatures.innerAir = startingTemp
+	self.temperatures.rim = startingTemp
 	return self
 end
 
@@ -169,13 +177,12 @@ function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self.temperatures.l4 = self.temperatures.l4 - 40 * dt / 10
 	self.temperatures.l5 = self.temperatures.l5 - 40 * dt / 10
 	self.temperatures.l6 = self.temperatures.l6 - 40 * dt / 10
-	self.temperatures.rim = self.temperatures.rim - 40 * dt / 10
 	self.temperatures.innerAir = self.temperatures.innerAir - 40 * dt / 10
+	self.temperatures.rim = self.temperatures.rim - 40 * dt / 10
 	return self
 end
 
 function ThermalWearTyre:hasWeightOnWheel()
-	print(string.format("Load: %f", self.load))
 	if self.load == 0 then
 		return false
 	else
@@ -186,24 +193,7 @@ end
 function ThermalWearTyre:setWear()
 end
 
-function ThermalWearTyre:hotReset()
-	for i=1, self.zoneCount do
-		self.temperatures.l1[i] = self.idealTemp
-		self.temperatures.l2[i] =  self.idealTemp
-		self.condition_zones[i] = 100
-	end
-	self.temperatures.sidewall.left =  self.idealTemp
-	self.temperatures.sidewall.right =  self.idealTemp
-	self.temperatures.l3 =  self.idealTemp
-	self.temperatures.l4 =  self.idealTemp
-	self.temperatures.l5 =  self.idealTemp
-	self.temperatures.l6 =  self.idealTemp
-	self.temperatures.rim =  self.idealTemp
-	self.temperatures.innerAir = self.idealTemp
-	return self
-end
-
-function ThermalWearTyre:coldReset(env_temp)
+function ThermalWearTyre:changeTyre(env_temp)
 	env_temp = env_temp or TWT.env_temp
 	for i=1, self.zoneCount do
 		self.temperatures.l1[i] = env_temp
@@ -216,8 +206,8 @@ function ThermalWearTyre:coldReset(env_temp)
 	self.temperatures.l4 =  env_temp
 	self.temperatures.l5 =  env_temp
 	self.temperatures.l6 =  env_temp
-	self.temperatures.rim =  env_temp
 	self.temperatures.innerAir = env_temp
+	self.temperatures.rim =  env_temp
 	return self
 end
 

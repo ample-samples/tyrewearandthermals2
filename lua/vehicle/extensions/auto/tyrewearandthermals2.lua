@@ -12,15 +12,12 @@ extensions.load("standardiseTyreNames")
 local useTyre = ThermalWearTyre
 tyres = {} -- left global so other mods can interact with it
 
-function TWT.coldResetAllTyres()
-	for _, tyre in pairs(tyres) do
-		tyre:coldReset()
-	end
-end
 
-function TWT.hotResetAllTyres()
-	for _, tyre in pairs(tyres) do
-		tyre:hotReset()
+function TWT.changeTyres(resetTemp)
+	if resetTemp then
+		for _, tyre in pairs(tyres) do tyre:changeTyre(resetTemp) end
+	else
+		for _, tyre in pairs(tyres) do tyre:changeTyre(tyre.idealTemp) end
 	end
 end
 
@@ -122,7 +119,8 @@ local function updateGFX(dt)
 	end
 
 	if oneSecondTimer >= 1 then
-		TWT.hotResetAllTyres()
+		TWT.changeTyres()
+		-- TWT.changeTyres(TWT.env_temp)
 		oneSecondTimer = oneSecondTimer % 1 -- Loops every 1 seconds
 	end
 
