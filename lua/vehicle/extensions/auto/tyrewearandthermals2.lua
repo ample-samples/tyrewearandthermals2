@@ -54,7 +54,7 @@ local function generateStream(tyres)
 	for _, tyre in pairs(tyres) do
 		table.insert(stream.data, {
 			name = tyre.name,
-			temps = tyre.temperatures.l1,
+			temps = tyre.matNodes.l1.temperature,
 			working_temp = 85,
 			condition_zones = tyre.condition_zones,
 			camber = tyre.camber_to_ground,
