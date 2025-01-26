@@ -131,7 +131,7 @@ end
 local function generateModTyres()
 	for i, wheel in pairs(wheels.wheelRotators) do
 		tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
-			{ totalWeight = 10, idealTemp = 85, wear_rate = 0.005, wheel.tireWidth, isPreheated = true })
+			{ tyreMass = 10, idealTemp = 85, wear_rate = 0.005, wheel.tireWidth, isPreheated = true })
 	end
 end
 

@@ -18,9 +18,7 @@ Tyre = {
 
 ThermalWearTyre = {
 	type = "ThermalWearTyre",
-	temperature = 85,
 	wear_rate = 0.01,
-	condition_zones = { 100, 100, 100, 100 }
 }
 
 WearTyre = {
@@ -81,10 +79,10 @@ function WearTyre.new(name, wheelID, wheelDir, tyreParams)
 end
 
 function WearTyre:update(dt, camber_to_ground, tyreParams)
+	self:setCamberToGround(camber_to_ground)
 	local load = tyreParams.load
 	local angular_vel = tyreParams.angularVel * self.wheelDir
 	local propulsionTorque = tyreParams.propulsionTorque * self.wheelDir
-	self:setCamberToGround(camber_to_ground)
 	for i, zone in pairs(self.condition_zones) do
 		-- INFO: ADDITIONAL THINGS WHICH AFFECT WEAR
 		-- Contact pressure
@@ -116,14 +114,14 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 	self.name = name
 	self.wheelID = wheelID
 	self.wheelDir = wheelDir
-	self.totalWeight = tyreParams.weight
-	self.surfaceEnergies = {}
+	self.tyreMass = tyreParams.tyreMass
 	self.zoneCount = 10
 	self.condition_zones = {}
 	-- TODO:
 	-- matNodes, short for materialNodes
 	-- these matNodes contain information for each simulated point on the tyre:
 	-- - temperature
+	-- - mass
 	-- - energy
 	-- - matName
 	--   - a key to a material lookup table
@@ -147,25 +145,38 @@ function ThermalWearTyre.new(name, wheelID, wheelDir, tyreParams)
 		startingTemp = tyreParams.idealTemp
 	end
 
+	local defaultMatName = "testMaterial1"
+	local defaultAirMatName = "nitrogen"
+	local treadMatName = tyreParams.treadMatName or defaultMatName
+	local carcassMatName = tyreParams.carcassMatName or defaultMatName
+	local sidewallMatName = tyreParams.sidewallMatName or defaultMatName
+	local innerAirMatName = tyreParams.innerAirMatName or defaultAirMatName
+
 	-- NOTE: maybe change temp zones to energy zones in future?
 	for i = 1, self.zoneCount, 1 do
 		self.condition_zones[i] = 100
+		self.matNodes.l1.matName = treadMatName
+		self.matNodes.l2.matName = treadMatName
+		self.matNodes.l3.matName = treadMatName
 		self.matNodes.l1.temperature[i] = startingTemp
 		self.matNodes.l2.temperature[i] = startingTemp
 		self.matNodes.l3.temperature[i] = startingTemp
 	end
+	self.matNodes.sidewall.left.matName = sidewallMatName
+	self.matNodes.sidewall.right.matName = sidewallMatName
 	self.matNodes.sidewall.left.temperature = startingTemp
 	self.matNodes.sidewall.right.temperature = startingTemp
+	self.matNodes.l4.matName = carcassMatName
+	self.matNodes.l5.matName = carcassMatName
+	self.matNodes.l3.matName = carcassMatName
+	self.matNodes.l4.temperature = startingTemp
 	self.matNodes.l4.temperature = startingTemp
 	self.matNodes.l5.temperature = startingTemp
 	self.matNodes.l6.temperature = startingTemp
 	self.matNodes.innerAir.temperature = startingTemp
+	self.matNodes.innerAir.matName = innerAirMatName
 	self.matNodes.rim.temperature = startingTemp
-	return self
-end
-
-function ThermalWearTyre:setTemperature(i, temp)
-	self.temperatures.l1[i] = temp
+	dump(self)
 	return self
 end
 
@@ -173,6 +184,7 @@ end
 function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	self:setCamberToGround(camber_to_ground)
 	self.load = tyreParams.load
+	if self.disabled then return end
 	for i = 1, self.zoneCount do
 		local currentCondition = self.condition_zones[i]
 		self.condition_zones[i] = currentCondition - (currentCondition - self.wear_rate) * i * dt / 10
@@ -190,6 +202,11 @@ function ThermalWearTyre:update(dt, camber_to_ground, tyreParams)
 	return self
 end
 
+function ThermalWearTyre:toggleDisabled()
+	self.disabled = not self.disabled
+	return self
+end
+
 function ThermalWearTyre:hasWeightOnWheel()
 	if self.load == 0 then
 		return false
@@ -201,21 +218,28 @@ end
 function ThermalWearTyre:setWear()
 end
 
-function ThermalWearTyre:changeTyre(env_temp)
-	env_temp = env_temp or TWT.env_temp
+function ThermalWearTyre:setTemperatures(temp)
+	for i = 1, self.zoneCount do
+		self.matNodes.l1.temperature[i] = temp
+		self.matNodes.l2.temperature[i] = temp
+		self.matNodes.l3.temperature[i] = temp
+	end
+	self.matNodes.sidewall.left.temperature = temp
+	self.matNodes.sidewall.right.temperature = temp
+	self.matNodes.l4.temperature = temp
+	self.matNodes.l5.temperature = temp
+	self.matNodes.l6.temperature = temp
+	self.matNodes.innerAir.temperature = temp
+	self.matNodes.rim.temperature = temp
+	return self
+end
+
+function ThermalWearTyre:changeTyre(temp)
+	temp = temp or TWT.env_temp
 	for i = 1, self.zoneCount do
 		self.condition_zones[i] = 100
-		self.matNodes.l1.temperature[i] = env_temp
-		self.matNodes.l2.temperature[i] = env_temp
-		self.matNodes.l3.temperature[i] = env_temp
 	end
-	self.matNodes.sidewall.left.temperature = env_temp
-	self.matNodes.sidewall.right.temperature = env_temp
-	self.matNodes.l4.temperature = env_temp
-	self.matNodes.l5.temperature = env_temp
-	self.matNodes.l6.temperature = env_temp
-	self.matNodes.innerAir.temperature = env_temp
-	self.matNodes.rim.temperature = env_temp
+	self:setTemperatures(temp)
 	return self
 end
 
