@@ -33,15 +33,29 @@ lut.testMaterial1 = testMaterial1
 -- Some of these values are used to simplify the model
 local function air()
 	local material = {
-		specificHeatCapacityAt0DegCAnd1Atm = 1.006,
-		specificHeatCapacityPerDegC = 0.00008,
-		-- Specific heat capacity doubles from 0% to 100% relative humidity
-		specificHeatCapacityPer1PercentRelativeHumidity = 0.01,
+		-- NOTE: this list is incomplete
+		specificHeatCapacityAt0DegCAnd1AtmAnd0Humidity = 1.006,
+		specificHeatCapacityMultPerDegC = 0.00008,
+		-- Specific heat capacity doubles at 100% relative humidity
+		relativeHumidity = 0.2, -- 1.0 = 100%
+		specificHeatCapacityAddPerAbsoluteHumidity = 1884,
 		gasConstant = 287
 	}
 	return material
 end
 lut.air = air
+
+-- INFO: dealing with nitrogen is much easier than air
+local function nitrogen()
+	local material = {
+		-- specificHeatCapacity changes less than 1% from 0C to 100C
+		-- nitrogen doesn't hold moisture :)
+		specificHeatCapacity = 1.04,
+		gasConstant = 297
+	}
+	return material
+end
+lut.nitrogen = nitrogen
 
 local function matRoadStandard()
 	-- NOTE: 
