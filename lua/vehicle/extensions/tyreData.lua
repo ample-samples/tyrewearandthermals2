@@ -1,6 +1,11 @@
+-- NOTE:
+-- Not used
+
 local M = {}
 
 local function matRoadStandard()
+	-- NOTE: 
+	-- example
 	local material = {
 		hysteresisFactor = 1,
 		hardness = 1,
@@ -11,8 +16,8 @@ local function matRoadStandard()
 end
 
 local function getmaterial(material)
-	-- NOTE:
-	-- This will act as a lookup table for various materials
+	-- INFO:
+	-- This acts as a lookup table for various materials
 	local lut = {
 		matRoadStandard = matRoadStandard
 	}
