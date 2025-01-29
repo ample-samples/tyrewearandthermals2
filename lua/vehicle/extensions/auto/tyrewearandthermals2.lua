@@ -114,42 +114,6 @@ local function updateGFX(dt)
 				brakingTorque = wheels.wheelRotators[i].brakingTorque,
 				lastTorque = wheels.wheelRotators[i].lastTorque
 			})
-
-		local tyreGrip = 1
-		obj:getWheel(i):setFrictionThermalSensitivity( -300, 1e7, 1e-10, 1e-10, 10, tyreGrip, tyreGrip, tyreGrip)
-		local wheel = v.data.wheels[i]
-		if wheel.treadNodes ~= nil and wheel.treadBeams ~= nil then
-      for _, nodecid in pairs(wheel.treadNodes) do
-        local frictionCoef = v.data.nodes[nodecid].frictionCoef
-        local slidingFrictionCoef = v.data.nodes[nodecid].slidingFrictionCoef
-				obj:setNodeFrictionSlidingCoefs(nodecid, frictionCoef, (slidingFrictionCoef or frictionCoef))
-      end
-
-      for _, beamcid in pairs(wheel.treadBeams) do
-				obj:breakBeam(beamcid)
-        obj:setBeamSpringDamp(beamcid, v.data.beams[beamcid].beamSpring * 0.1, 2, -1, -1)
-      end
-    end
-
-    if wheel.sideBeams ~= nil then
-      for _, beamcid in pairs(wheel.sideBeams) do
-				-- ("beamcid", beamSpring, beamDamp, ,)
-        obj:setBeamSpringDamp(beamcid, 0, 10, -1, -1)
-      end
-    end
-
-    if wheel.peripheryBeams ~= nil then
-      for _, beamcid in pairs(wheel.peripheryBeams) do
-        obj:setBeamSpringDamp(beamcid, v.data.beams[beamcid].beamSpring * 0.1, 2, -1, -1)
-      end
-    end
-    --
-    if wheel.reinfBeams ~= nil then
-      for _, beamcid in pairs(wheel.reinfBeams) do
-        obj:setBeamSpringDamp(beamcid, 0, 0.7, 0, 0)
-      end
-    end
-
 	end
 
 	if oneSecondTimer >= 1 then
