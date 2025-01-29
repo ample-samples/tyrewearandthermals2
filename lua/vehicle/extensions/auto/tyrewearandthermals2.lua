@@ -22,9 +22,7 @@ function TWT.changeTyres(resetTemp)
 end
 
 local function setEnvironmentTemperature()
-	if powertrain ~= nil and powertrain.currentEnvTemperature ~= nil then
-		TWT.env_temp = powertrain.currentEnvTemperature - 273.15
-	end
+	TWT.env_temp = obj:getEnvTemperature() - 273.15
 end
 
 local function getGroundModelData(id)
