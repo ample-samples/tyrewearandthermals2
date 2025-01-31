@@ -24,6 +24,9 @@ local function standardise(tyres, vehicleOrientation)
 	--	 Some vehicles use RR1 as the right outer wheel on the first axle behind the front wheels and
 	--	 some don't
 	-- - Tyre index within the `wheels` global variable. Order is not consisted with tyre position
+
+	-- NOTE: maybe the axle name can be retrieved from rotators axleBeams
+
 	local vehicleOrientation2D = { x = vehicleOrientation.x, y = vehicleOrientation.y }
 	local tyresPos2D = {}
 	for tyreName, tyrePos in pairs(tyres) do

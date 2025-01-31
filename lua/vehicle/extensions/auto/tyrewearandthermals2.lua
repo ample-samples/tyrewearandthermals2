@@ -1,6 +1,6 @@
 local M = {}
 TWT = {} -- made global so GELua can access and change it
-TWT.groundModels = {} 
+TWT.groundModels = {}
 TWT.env_temp = 20
 TWT.brakeSettings = { 12, 12 }
 TWT.tyreVarsFront = nil
@@ -33,7 +33,7 @@ local function getGroundModelData(id)
 	return name, data
 end
 
-local function getWheelCamberToGround(wheelID)
+local function getMapNormalUnderWheel(wheelID)
 	local vectorUp = obj:getDirectionVectorUp()
 	local localVectNode1 = obj:getNodePosition(wheels.wheelRotators[wheelID].node1)
 	local localVectNode2 = obj:getNodePosition(wheels.wheelRotators[wheelID].node2)
@@ -43,9 +43,18 @@ local function getWheelCamberToGround(wheelID)
 		obj:getPosition() + (localVectNode2 + localVectNode1) / 2 -
 		wheels.wheelRotators[wheelID].radius * vectorWheelUp:normalized(), 0.1
 	)
-	local camber = 90 - math.deg(math.acos((localVectNode2 - localVectNode1):normalized():dot(surfaceNormal:normalized())))
+	return surfaceNormal
+end
+
+local function getWheelCamberToGround(wheelID)
+	local localVectNode1 = obj:getNodePosition(wheels.wheelRotators[wheelID].node1)
+	local localVectNode2 = obj:getNodePosition(wheels.wheelRotators[wheelID].node2)
+	local surfaceNormal = getMapNormalUnderWheel(wheelID)
+	local camber = 90 -
+	math.deg(math.acos((localVectNode2 - localVectNode1):normalized():dot(surfaceNormal:normalized())))
 	return camber
 end
+
 
 local function generateStream(tyres)
 	local stream = { data = {} }
@@ -62,20 +71,22 @@ local function generateStream(tyres)
 	return stream
 end
 
-local dummyStream = { data = {
-	name = "not a real tyre",
-	temps = { TWT.env_temp, TWT.env_temp },
-	working_temp = TWT.env_temp,
-	condition_zones = {100},
-	camber = 0
-} }
+local dummyStream = {
+	data = {
+		name = "not a real tyre",
+		temps = { TWT.env_temp, TWT.env_temp },
+		working_temp = TWT.env_temp,
+		condition_zones = { 100 },
+		camber = 0
+	}
+}
 
 local function getWheelsAndNamesPositions(wheels)
 	-- INFO: unused, will be used to standardise tyre names and
 	-- their position relative to the vehicle and its orentation
 	-- so the UI can display them
 	local wheelNamesAndPositions = {}
-	for i,v in pairs(wheels.wheelRotators) do
+	for i, v in pairs(wheels.wheelRotators) do
 		local localVectNode1 = obj:getNodePosition(wheels.wheelRotators[i].node2)
 		local wheelName = wheels.wheelRotators[i].name
 		wheelNamesAndPositions[wheelName] = localVectNode1
