@@ -55,29 +55,6 @@ local function getWheelCamberToGround(wheelID)
     return camber
 end
 
-local function getLastTreadContactNodeForcePerpToGround(wheelID)
-    -- INFO: z-axis is up/down
-    -- NOTE: maybe you should get the total of all nodes in contact with the ground
-    local nodeID = wheels.wheelRotators[wheelID].lastTreadContactNode
-    if nodeID == nil then return 0 end
-    local nodeForce = obj:getNodeForceVector(nodeID)
-    local mapNormal = getMapNormalUnderWheel(wheelID)
-    local projectionPart1 = (nodeForce:dot(mapNormal) / mapNormal:dot(mapNormal))
-    local wheelName = wheels.wheelRotators[wheelID].name
-    local nodePosition = obj:getNodePosition(nodeID)
-    dump(string.format("========%s========", wheelName))
-    dump("===Positions===")
-    dump(string.format("x: %f", nodePosition.x))
-    dump(string.format("y: %f", nodePosition.y))
-    dump(string.format("z: %f", nodePosition.z))
-    dump("===Forces===")
-    dump(nodeForce)
-    dump(string.format("x: %f", nodeForce.x))
-    dump(string.format("y: %f", nodeForce.y))
-    dump(string.format("z: %f", nodeForce.z))
-    -- local projection = vec3(projectionPart1 * )
-end
-
 local function generateStream(tyres)
     local stream = { data = {} }
     for _, tyre in pairs(tyres) do
@@ -134,7 +111,6 @@ local function updateGFX(dt)
     end
 
     for i, tyre in pairs(tyres) do
-        getLastTreadContactNodeForcePerpToGround(i)
         local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[i].contactMaterialID1)
         local wheelload = wheels.wheelRotators[i].downForce
         local wheelname = wheels.wheelRotators[i].name
@@ -147,7 +123,8 @@ local function updateGFX(dt)
                 angularVel = wheels.wheelRotators[i].angularVelocity,
                 propulsionTorque = wheels.wheelRotators[i].propulsionTorque,
                 brakingTorque = wheels.wheelRotators[i].brakingTorque,
-                lastTorque = wheels.wheelRotators[i].lastTorque
+                lastTorque = wheels.wheelRotators[i].lastTorque,
+                slipEnery = wheels.wheelRotators[i].slipEnergy
             })
     end
 
