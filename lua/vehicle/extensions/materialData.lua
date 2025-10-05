@@ -18,63 +18,86 @@ local lut = {}
 -- hardness : relative : 1-10
 
 local function testMaterial1()
-	local material = {
-		hysteresisFactor = 1,
-		hardness = 8,
-		elasticity = 1,
-		specificHeatCapacityAtTemp = {{20, 1.982}, {100, 2.121}},
-		density = 1000
-	}
-	return material
+        local material = {
+                hysteresisFactor = 1,
+                hardness = 8,
+                elasticity = 1,
+                specificHeatCapacity = 2,
+                specificHeatCapacityAtTemp = { { 20, 1.982 }, { 100, 2.121 } },
+                density = 1000
+        }
+        return material
 end
 lut.testMaterial1 = testMaterial1
 
--- INFO: 
+-- INFO:
 -- Air accounts for about 2% of the energy in the tyre, negligible
 -- Some of these values are used to simplify the model
 local function air()
-	local material = {
-		-- NOTE: this list is incomplete
-		specificHeatCapacityAt0DegCAnd1AtmAnd0Humidity = 1.006,
-		specificHeatCapacityMultPerDegC = 0.00008,
-		-- Specific heat capacity doubles at 100% relative humidity
-		relativeHumidity = 0.2, -- 1.0 = 100%
-		specificHeatCapacityAddPerAbsoluteHumidity = 1884,
-		gasConstant = 287
-	}
-	return material
+        local material = {
+                -- NOTE: this list is incomplete
+                specificHeatCapacity = 1.006,
+                specificHeatCapacityAt0DegCAnd1AtmAnd0Humidity = 1.006,
+                specificHeatCapacityMultPerDegC = 0.00008,
+                -- Specific heat capacity doubles at 100% relative humidity
+                relativeHumidity = 0.2, -- 1.0 = 100%
+                specificHeatCapacityAddPerAbsoluteHumidity = 1884,
+                gasConstant = 287
+        }
+        return material
 end
 lut.air = air
 
 -- INFO: dealing with nitrogen is much easier than air
 local function nitrogen()
-	local material = {
-		-- specificHeatCapacity changes less than 1% from 0C to 100C
-		-- nitrogen doesn't hold moisture :)
-		specificHeatCapacity = 1.04,
-		gasConstant = 297
-	}
-	return material
+        local material = {
+                -- specificHeatCapacity changes less than 1% from 0C to 100C
+                -- nitrogen doesn't hold moisture :)
+                specificHeatCapacity = 1.04,
+                gasConstant = 297
+        }
+        return material
 end
 lut.nitrogen = nitrogen
 
 local function matRoadStandard()
-	-- NOTE: 
-	-- example
-	local material = {
-		hysteresisFactor = 1,
-		hardness = 1,
-		elasticity = 1,
-		specificHeatCapacity = 1
-	}
-	return material
+        -- NOTE:
+        -- example
+        local material = {
+                hysteresisFactor = 1,
+                hardness = 8,
+                elasticity = 1,
+                specificHeatCapacity = 1
+        }
+        return material
 end
+
+local function raceMedium()
+        local tread = {
+                hysteresisFactor = 1,
+                hardness = 4,
+                elasticity = 1,
+                specificHeatCapacity = 2
+        }
+        local sidewall = {
+                hysteresisFactor = 1,
+                hardness = 4,
+                elasticity = 1,
+                specificHeatCapacity = 2
+        }
+        return { tread = tread, sidewall = sidewall, name = 'raceMedium' }
+end
+
 lut.matRoadStandard = matRoadStandard
+lut.raceMedium = raceMedium
 
-local function getmaterial(material)
-	if lut[material] then return lut[material]() end
-	return matRoadStandard()
+local function getMaterial(material)
+        if lut[material] then
+                return lut[material]()
+        else
+                return matRoadStandard()
+        end
 end
 
-M.getmaterial = getmaterial
+M.getMaterial = getMaterial
 return M

@@ -6,10 +6,10 @@ TWT.brakeSettings = { 12, 12 }
 TWT.tyreVarsFront = nil
 TWT.tyreVarsRear = nil
 
-extensions.load("ThermalWearTyre")
+extensions.load("TWTTyres")
 extensions.load("standardiseTyreNames")
 
-local useTyre = ThermalWearTyre
+local useTyre = TWTTyres.ThermalWearTyre
 tyres = {} -- left global so other mods can interact with it
 
 
@@ -51,7 +51,7 @@ local function getWheelCamberToGround(wheelID)
     local localVectNode2 = obj:getNodePosition(wheels.wheelRotators[wheelID].node2)
     local surfaceNormal = getMapNormalUnderWheel(wheelID)
     local camber = 90 -
-    math.deg(math.acos((localVectNode2 - localVectNode1):normalized():dot(surfaceNormal:normalized())))
+        math.deg(math.acos((localVectNode2 - localVectNode1):normalized():dot(surfaceNormal:normalized())))
     return camber
 end
 
@@ -60,7 +60,7 @@ local function generateStream(tyres)
     for _, tyre in pairs(tyres) do
         table.insert(stream.data, {
             name = tyre.name,
-            temps = tyre.matNodes.l1.temperature,
+            temps = tyre.matNodes.l1.temperatures,
             working_temp = 85,
             condition_zones = tyre.treadConditions,
             camber = tyre.camber_to_ground,
@@ -141,7 +141,8 @@ end
 local function generateModTyres()
     for i, wheel in pairs(wheels.wheelRotators) do
         tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
-            { tyreMass = 10, idealTemp = 85, wear_rate = 0.005, wheel.tireWidth, isPreheated = true })
+            { tyreMass = 10, idealTemp = 85, wear_rate = 0.005, wheel.tireWidth, isPreheated = true, tyreMaterials = 'raceMedium' })
+        dump(tyres[wheel.wheelID].tyreMaterials)
     end
 end
 

@@ -18,6 +18,7 @@ angular.module("beamng.apps")
                 let wheelCount;
                 scope.$on("streamsUpdate", function(event, streams) {
                     // From: https://stackoverflow.com/a/3368118
+                    if (streams.tyrewearandthermals2 == undefined) return;
                     var wheelCount = streams.tyrewearandthermals2.data.length;
                     function roundRect(
                         ctx,
@@ -123,7 +124,7 @@ angular.module("beamng.apps")
                             ctx.beginPath();
                             ctx.rect(x + sectionXOffset, y + 1, sectionWidth, h - 2);
                             ctx.fill();
-                            if (condition_zones[i] > 30) {
+                            if (condition_zones[i] > 0) {
                                 var ft = 1.0 - (condition_zones[i] / 100);
                                 ctx.fillStyle = "hsla(" + hue + ",82%,56%,1)";
                                 ctx.beginPath();

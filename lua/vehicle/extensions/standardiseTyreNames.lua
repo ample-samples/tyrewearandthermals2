@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 -- INFO: unused
 local function standardise(tyres, vehicleOrientation)
 	-- take a list of tyres, in the form:
