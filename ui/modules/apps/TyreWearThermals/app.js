@@ -133,7 +133,7 @@ angular.module("beamng.apps")
                                 cx,
                                 y - 8,
                             );
-                            var t = conditionAverage / 100;
+                            var t = conditionAverage / 1;
                             var lowHue = 0;
                             var highHue = 248;
                             for (let i = 0; i < condition_zones.length; i++) {
