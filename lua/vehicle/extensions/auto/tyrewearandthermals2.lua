@@ -111,8 +111,9 @@ local function updateGFX(dt)
     end
 
     for i, tyre in pairs(tyres) do
+        local wheel = obj:getWheel(i)
+        local wheelRotator = wheels.wheelRotators[i]
         local groundModelName, groundModel = getGroundModelData(wheels.wheelRotators[i].contactMaterialID1)
-        local wheelload = wheels.wheelRotators[i].downForce
         local wheelname = wheels.wheelRotators[i].name
         tyre:update(
             dt,
@@ -126,6 +127,58 @@ local function updateGFX(dt)
                 lastTorque = wheels.wheelRotators[i].lastTorque,
                 slipEnery = wheels.wheelRotators[i].slipEnergy
             })
+        -- if wheel.treadNodes ~= nil then
+        --     print("11111")
+        --     for _, nodecid in pairs(wheel.treadNodes) do
+        --     print("22222")
+        --         dump(v.data.nodes[nodecid])
+        --         local frictionCoef = v.data.nodes[nodecid].frictionCoef
+        --         local slidingFrictionCoef = v.data.nodes[nodecid].slidingFrictionCoef
+        --         if frictionCoef then
+        --     print("33333")
+        --             -- obj:setNodeFrictionSlidingCoefs(nodecid, tyre.grip, slidingFrictionCoef or frictionCoef)
+        --             obj:setNodeFrictionSlidingCoefs(nodecid, 0, 0)
+        --         end
+        --     end
+        -- end
+        -- for k,v in pairs(getmetatable(wheel)) do
+        --     print("==============" ..  k .. "==============")
+        --     dump(v)
+        -- end
+        if wheelRotator.wheelDir > 0 then
+            if v.data.wheels[i].treadNodes ~= nil and v.data.wheels[i].treadBeams ~= nil then
+
+            end
+            for _, nodecid in pairs(v.data.wheels[i].treadNodes) do
+                local node = v.data.nodes[nodecid]
+                -- dump(node)
+                obj:setNodeFrictionSlidingCoefs(nodecid, 1,
+                    (0.8))
+
+                -- local pos = node.pos
+                -- obj:setNode(node.cid, pos.x, pos.y, pos.z, node.nodeWeight, node.ntype, frictionCoef or 1,
+                --     slidingFrictionCoef or 1,
+                --     node.stribeckExponent or 1.75, node.stribeckVelMult or 1, node.noLoadCoef, node.fullLoadCoef,
+                --     node.loadSensitivitySlope,
+                --     node.softnessCoef or 0.5, node.treadCoef or 0.5, node.tag or '', node.couplerStrength or math.huge,
+                --     node.firstGroup or -1,
+                --     false, --selfCollision
+                --     nil,  --collision
+                --     nil,  --staticCollision
+                --     node.nodeMaterial)
+            end
+
+            -- wheel:setFrictionThermalSensitivity(
+            --     -300,  -- frictionLowTemp              default: -300
+            --     1e7,   -- frictionHighTemp             default: 1e7
+            --     1e-10, -- frictionLowSlope             default: 1e-10
+            --     1e-10, -- frictionHighSlope            default: 1e-10
+            --     10,    -- frictionSlopeSmoothCoef      default: 10
+            --     0,     -- frictionCoefLow              default: 1
+            --     1,     -- frictionCoefMiddle           default: 1
+            --     0      -- frictionCoefHigh             default: 1
+            -- )
+        end
     end
 
     if oneSecondTimer >= 1 then
@@ -134,6 +187,7 @@ local function updateGFX(dt)
         oneSecondTimer = oneSecondTimer % 1 -- Loops every 1 seconds
     end
 
+
     local stream = generateStream(tyres)
     gui.send("tyrewearandthermals2", stream)
 end
@@ -141,7 +195,15 @@ end
 local function generateModTyres()
     for i, wheel in pairs(wheels.wheelRotators) do
         tyres[wheel.wheelID] = useTyre.new(wheel.name, wheel.wheelID, wheel.wheelDir,
-            { tyreMass = 10, idealTemp = 85, wear_rate = 0.005, wheel.tireWidth, isPreheated = true, tyreMaterials = 'raceMedium' })
+            {
+                tyreMass = 10,
+                idealTemp = 85,
+                wear_rate = 0.005,
+                wheel.tireWidth,
+                isPreheated = true,
+                tyreMaterials =
+                'raceMedium'
+            })
         dump(tyres[wheel.wheelID].tyreMaterials)
     end
 end
@@ -149,7 +211,7 @@ end
 local function onReset()
     setEnvironmentTemperature()
     generateModTyres()
-
+    TWT.changeTyres()
     obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setBrakeSettings() end")
     obj:queueGameEngineLua("if tyrewearandthermals2 then tyrewearandthermals2.setTyreWearAndThermalVariables() end")
 end

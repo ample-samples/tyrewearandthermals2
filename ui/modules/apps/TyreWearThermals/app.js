@@ -79,7 +79,6 @@ angular.module("beamng.apps")
                                 ctx.stroke();
                             }
                         }
-
                         function drawWheelData(
                             name,
                             temps,
@@ -92,25 +91,19 @@ angular.module("beamng.apps")
                             if (Object.keys(temps).length == 0) {
                                 temps = Array(4).fill(0);
                             }
-
                             if (condition_zones == undefined) {
                                 condition_zones = [100, 100, 100];
                             }
-
                             ctx.textAlign = "center";
-
                             var right = 0;
                             var back = 0;
-
                             var w = c.width / 3.5;
                             var h = c.height / 3.5;
                             h = h / (wheelCount / 4);
-
                             if (wheelCount <= 4) {
                                 if (name == "RR" || name == "RL") {
                                     back = 1;
                                 }
-
                                 if (
                                     name == "FR" || name == "RR" ||
                                     name == "RR2"
@@ -123,14 +116,11 @@ angular.module("beamng.apps")
                                 }
                                 back = Math.floor(tyreNumber / 2);
                             }
-
                             var x = w * 0.5 + ((w * 1.5) * right);
                             var y = (h * 0.5 + ((h * 1.5) * back)) + h * 0.1;
                             var cx = x + w * 0.5;
                             var cy = y + h * 0.5;
-
                             h = h * 0.8;
-
                             // Draw info text
                             ctx.fillStyle = "#ffffffff";
                             ctx.font =
@@ -143,12 +133,9 @@ angular.module("beamng.apps")
                                 cx,
                                 y - 8,
                             );
-
                             var t = conditionAverage / 100;
-
                             var lowHue = 0;
                             var highHue = 248;
-
                             for (let i = 0; i < condition_zones.length; i++) {
                                 var tempT = 1.0 -
                                     Math.min(
@@ -159,7 +146,6 @@ angular.module("beamng.apps")
                                         1,
                                     );
                                 var hue = lowHue + (highHue - lowHue) * tempT;
-
                                 var crad = 8.0;
                                 var radius = { tl: 0, tr: 0, br: 0, bl: 0 };
                                 if (i == 0) {
@@ -177,7 +163,6 @@ angular.module("beamng.apps")
                                         bl: 0,
                                     };
                                 }
-
                                 const sectionWidth = (w / 3.0 - 1.5) /
                                     condition_zones.length * 3;
                                 const sectionXOffset = sectionWidth * i + 2;
@@ -192,7 +177,7 @@ angular.module("beamng.apps")
                                 );
                                 ctx.fill();
                                 if (condition_zones[i] > 0) {
-                                    var ft = 1.0 - (condition_zones[i] / 100);
+                                    var ft = 1.0 - (condition_zones[i]);
                                     ctx.fillStyle = "hsla(" + hue +
                                         ",82%,56%,1)";
                                     ctx.beginPath();
@@ -215,7 +200,6 @@ angular.module("beamng.apps")
                                     radius,
                                     false,
                                 );
-
                                 // Info text
                                 ctx.fillStyle = "#ffffffff";
                                 var font_size = Math.max(
@@ -229,7 +213,6 @@ angular.module("beamng.apps")
                                     const middleIndex = Math.floor(
                                         temps.length / 2,
                                     );
-
                                     if (temps.length % 2 === 1) {
                                         // Odd length: return the middle value
                                         middleTemp = temps[middleIndex];
@@ -253,7 +236,6 @@ angular.module("beamng.apps")
                                         y + h + 22,
                                     );
                                 }
-
                                 // Load bias
                                 // ctx.fillStyle = "rgba(255,50,50,0.85)";
                                 // ctx.beginPath();
@@ -355,9 +337,7 @@ angular.module("beamng.apps")
                         var dataStream = streams.tyrewearandthermals2;
                         ctx.setTransform(1, 0, 0, 1, 0, 0); // No scaling, no skewing, no translation
                         ctx.clearRect(0, 0, c.width, c.height);
-
                         ctx.textAlign = "center";
-
                         for (let i = 0; i < dataStream.data.length; i++) {
                             drawWheelData(
                                 dataStream.data[i].name,

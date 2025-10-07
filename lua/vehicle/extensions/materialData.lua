@@ -91,7 +91,7 @@ end
 lut.matRoadStandard = matRoadStandard
 lut.raceMedium = raceMedium
 
-local function getMaterial(material)
+function getMaterial(material)
         if lut[material] then
                 return lut[material]()
         else
